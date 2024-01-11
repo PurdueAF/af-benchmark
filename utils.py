@@ -1,3 +1,4 @@
+import sys
 import glob
 from functools import partial
 import time
@@ -5,6 +6,7 @@ import math
 import tqdm
 import numpy as np
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
+from memory_profiler import memory_usage
 
 
 def get_list_of_files(datasets):
@@ -83,7 +85,6 @@ def get_columns(file, **kwargs):
         if fraction < 0:
             print("Fraction cannot be lower than 0! Resetting to 0.")
             fraction = 0
-
         columns_subset = all_columns[:math.ceil(fraction * len(all_columns))]
     else:
         # default: select all columns
@@ -91,8 +92,7 @@ def get_columns(file, **kwargs):
 
     return columns_subset
 
-
-def process(file, columns=[]):
+def process(file, columns=[], measure_mem=False):
     '''
     Workflow to run for each file
     '''
@@ -105,19 +105,25 @@ def process(file, columns=[]):
     # We will compute mean values for a given subset of columns.
     # This way we can be sure that we access every element in a column.
     mean_values = {}
+    mem_usage_mb = {}
     for column in columns:
         branch = column[0]
         leaf = column[1]
+        mem_usage_mb[f"{branch}_{leaf}"] = 0
+        mean_values[f"{branch}_{leaf}"] = 0
         if leaf in events[branch].fields:
+            if measure_mem:
+                mem_before = memory_usage()[0]
             mean_values[f"{branch}_{leaf}"] = np.mean(events[branch][leaf])
-        else:
-            mean_values[f"{branch}_{leaf}"] = 0
-
+            if measure_mem:
+                mem_usage_mb[f"{branch}_{leaf}"] = memory_usage()[0] - mem_before                            
     nevents = len(events)
-    return nevents, mean_values
+    if measure_mem:
+        print(mem_usage_mb)
+    return nevents, mean_values, mem_usage_mb
 
 
-def run_benchmark(process, files, columns=[], parallel=False, client=None):
+def run_benchmark(process, files, columns=[], parallel=False, client=None, measure_mem=False):
     '''
     Measure time for a list of files
     '''
@@ -129,16 +135,15 @@ def run_benchmark(process, files, columns=[], parallel=False, client=None):
         # Parallel processing using Dask
         if not client:
             raise "Dask client is missing!"
-        futures = client.map(partial(process, columns=columns), files)
+        futures = client.map(partial(process, columns=columns, measure_mem=measure_mem), files)
         results = client.gather(futures)
         for r in results:
-            nevts, mean_vals = r
+            nevts, mean_vals, mem_usg_mb = r
             nevts_total += nevts
     else:
         # Sequential processing
         for file in tqdm.tqdm(files):
-            nevts, mean_vals = process(file, columns=columns)
-            # print(mean_vals)
+            nevts, mean_vals, mem_usg_mb = process(file, columns=columns, measure_mem=measure_mem)
             nevts_total += nevts
 
     tock = time.time()

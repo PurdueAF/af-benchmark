@@ -20,6 +20,8 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
+    "sphinx_automodapi.automodapi",
+    "sphinx_automodapi.smart_resolver",
     "nbsphinx",
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx_rtd_theme",
@@ -51,6 +53,9 @@ intersphinx_mapping = {
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 intersphinx_disabled_domains = ['std']
+
+# automodapi config
+numpydoc_show_class_members = False
 
 templates_path = ['_templates']
 

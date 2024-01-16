@@ -76,7 +76,7 @@ html_theme_options = {
         },
     ],
 }
-html_title = "Purdue AF"
+html_title = "af-benchmark"
 html_sidebars = {
     "**": [
         "sidebar/brand.html",

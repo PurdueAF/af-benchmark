@@ -22,3 +22,7 @@ datasets = [
     "/store/data/Run2018C/SingleMuon/NANOAOD/02Apr2020-v1",
     "/store/data/Run2018D/SingleMuon/NANOAOD/02Apr2020-v1",
 ]
+
+datasets = [
+    "/store/data/Run2016C/SingleMuon/NANOAOD/02Apr2020-v1",
+]

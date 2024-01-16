@@ -5,6 +5,7 @@ import time
 import math
 import tqdm
 import numpy as np
+import pandas as pd
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 from memory_profiler import memory_usage
 
@@ -119,7 +120,7 @@ def process(file, columns=[], measure_mem=False):
                 mem_usage_mb[f"{branch}_{leaf}"] = memory_usage()[0] - mem_before                            
     nevents = len(events)
     if measure_mem:
-        print(mem_usage_mb)
+        mem_usage_mb = pd.DataFrame([mem_usage_mb])
     return nevents, mean_values, mem_usage_mb
 
 
@@ -130,6 +131,8 @@ def run_benchmark(process, files, columns=[], parallel=False, client=None, measu
     tick = time.time()
 
     nevts_total = 0
+    columns_ = [f"{c[0]}_{c[1]}" for c in columns]
+    mem_usage_full = pd.DataFrame(columns=sorted(columns_))
 
     if parallel:
         # Parallel processing using Dask
@@ -140,11 +143,15 @@ def run_benchmark(process, files, columns=[], parallel=False, client=None, measu
         for r in results:
             nevts, mean_vals, mem_usg_mb = r
             nevts_total += nevts
+            if measure_mem:
+                mem_usage_full = pd.concat([mem_usage_full, mem_usg_mb])
     else:
         # Sequential processing
         for file in tqdm.tqdm(files):
             nevts, mean_vals, mem_usg_mb = process(file, columns=columns, measure_mem=measure_mem)
             nevts_total += nevts
+            if measure_mem:
+                mem_usage_full = pd.concat([mem_usage_full, mem_usg_mb])
 
     tock = time.time()
     elapsed = tock - tick
@@ -152,3 +159,9 @@ def run_benchmark(process, files, columns=[], parallel=False, client=None, measu
     print(nevts_total, "events")
     print(round(elapsed,3), "s")
     print(nevts_total/elapsed, "evts/s")
+    if measure_mem:
+        # print(mem_usage_full)
+        # print(mem_usage_full.sum())
+        print(mem_usage_full.sum().sum())
+        with open("output.txt", 'w') as file:
+            file.write(str(mem_usage_full.sum().sum()))

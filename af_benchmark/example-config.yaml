@@ -1,0 +1,20 @@
+data-access:
+  mode: local
+  files: 
+    - /depot/cms/users/dkondra/test_nanoaod_depot.root
+processing:
+  method: nanoevents
+  columns:
+    - event
+    - Muon_pt
+  operation: mean
+  write: false
+measurements:
+  what:
+    - timing
+    - ram
+  report:
+    - print
+parallelization:
+  parallelize: true
+  backend: dask-local

@@ -1,5 +1,6 @@
 import argparse
 import yaml
+import scalpl
 from data_access.loader import get_file_list
 from processing.tools import open_nanoaod, validate_columns, run_operation
 from engine.executor import executors
@@ -9,41 +10,42 @@ def read_yaml(file_path):
     try:
         with open(file_path, 'r') as file:
             config = yaml.safe_load(file)
+            # this allows dotted notation while parsing config
+            config = scalpl.Cut(config)
             return config
     except FileNotFoundError:
         raise FileNotFoundError(f"Config file not found at path: {file_path}")
     except yaml.YAMLError as e:
-        raise ValueError(f"Error parsing YAML file: {e}")
+        raise ValueError(f"YAML error: {e}")
 
 
 class Benchmark:
     def __init__(self, config_path):
         self.config = read_yaml(config_path)
-        self.engine_config = self.config.get('engine', {})
-        self.data_access_config = self.config.get('data-access', {})
-        self.processing_config = self.config.get('processing', {})
-
-        backend = self.engine_config.get('backend', None)
+        backend = self.config.get('engine.backend')
         if backend in executors:
             self.executor = executors[backend]()
         else:
-            raise NotImplementedError(f"Invalid backend: {backend}. Allowed values are: {executors.keys()}")
+            raise NotImplementedError(
+                f"Invalid backend: {backend}. Allowed values are: {executors.keys()}"
+            )
 
-    def __del__(self):
-        del self.executor
-    
     def run(self):
-        files = get_file_list(self.data_access_config)
+        files = get_file_list(self)
 
-        processing_method = self.processing_config.get('method', 'nanoevents')
-        trees = self.executor.execute(open_nanoaod, files, method=processing_method)
+        trees = self.executor.execute(
+            open_nanoaod, files, method=self.config.get('processing.method')
+        )
 
-        columns_to_read = self.processing_config.get('columns', [])
-        columns_by_file = self.executor.execute(validate_columns, trees, columns_to_read=columns_to_read)
+        columns_by_file = self.executor.execute(
+            validate_columns, trees, columns_to_read=self.config.get('processing.columns')
+        )
 
-        operation = self.processing_config.get('operation', None)
-        outputs = self.executor.execute(run_operation, columns_by_file, operation=operation)
-        print(outputs)   
+        outputs = self.executor.execute(
+            run_operation, columns_by_file, operation=self.config.get('processing.operation')
+        )
+
+        return outputs
 
 
 if __name__ == "__main__":
@@ -52,4 +54,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     b = Benchmark(args.config_file)
-    b.run()
+    outputs = b.run()
+    print(outputs)

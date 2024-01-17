@@ -11,7 +11,9 @@ def open_nanoaod(file_path, kwargs):
             uproot_options={"timeout": 120}
         ).events()
     else:
-       raise NotImplementedError("Processing methods other than `nanoevents` are not yet implemented.")
+       raise NotImplementedError(
+           "Processing methods other than `nanoevents` are not yet implemented."
+       )
     return tree
 
 def validate_columns(tree, kwargs):

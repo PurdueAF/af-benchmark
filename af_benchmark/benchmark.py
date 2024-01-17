@@ -1,5 +1,6 @@
 import argparse
 import yaml
+from data_access.loader import get_file_list
 from processing.tools import open_nanoaod, validate_columns, run_operation
 from engine.executor import executors
 
@@ -17,8 +18,12 @@ def read_yaml(file_path):
 
 class Benchmark:
     def __init__(self, config_path):
-        self.parameters = read_yaml(config_path)
-        backend = self.parameters.get('engine', {}).get('backend', None)
+        self.config = read_yaml(config_path)
+        self.engine_config = self.config.get('engine', {})
+        self.data_access_config = self.config.get('data-access', {})
+        self.processing_config = self.config.get('processing', {})
+
+        backend = self.engine_config.get('backend', None)
         if backend in executors:
             self.executor = executors[backend]()
         else:
@@ -28,14 +33,15 @@ class Benchmark:
         del self.executor
     
     def run(self):
-        files = self.parameters.get('data-access', {}).get('files', [])
-        processing_method = self.parameters.get('processing', {}).get('method', 'nanoevents')
+        files = get_file_list(self.data_access_config)
+
+        processing_method = self.processing_config.get('method', 'nanoevents')
         trees = self.executor.execute(open_nanoaod, files, method=processing_method)
 
-        columns_to_read = self.parameters.get('processing', {}).get('columns', [])
+        columns_to_read = self.processing_config.get('columns', [])
         columns_by_file = self.executor.execute(validate_columns, trees, columns_to_read=columns_to_read)
 
-        operation = self.parameters.get('processing', {}).get('operation', None)
+        operation = self.processing_config.get('operation', None)
         outputs = self.executor.execute(run_operation, columns_by_file, operation=operation)
         print(outputs)   
 

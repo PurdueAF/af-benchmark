@@ -1,3 +1,6 @@
+engine:
+  backend: sequential
+  # backend: dask-gateway
 data-access:
   mode: local
   files: 
@@ -15,6 +18,3 @@ measurements:
     - ram
   report:
     - print
-engine:
-  backend: sequential
-  # backend: dask-gateway

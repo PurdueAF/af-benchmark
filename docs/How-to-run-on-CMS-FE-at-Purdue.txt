@@ -1,0 +1,35 @@
+SSH to a Front-End machine:
+--------------------------
+ssh cms.rcac.purdue.edu
+
+Build conda env:
+---------------
+source /etc/profile.d/modules.sh
+module --force purge
+module spider conda
+module load anaconda/2021.05-py38
+conda config --add channels conda-forge
+conda create --prefix /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks python=3.10
+conda activate /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks
+git clone https://github.com/PurdueAF/af-benchmark.git
+cd af-benchmark/
+vi requirements.txt
+---
+pyyaml
+scalpl
+coffea==0.7.21
+---
+
+python3 -m pip install --upgrade -r requirements.txt
+
+Run benchmarks:
+--------------
+spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-config.yaml
+[{'event': 2255000.5, 'Muon_pt': 46.13676846983951}]
+
+Cleanup:
+-------
+source deactivate
+conda env remove --prefix /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks
+cd ../
+rm -rf af-benchmark/

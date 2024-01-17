@@ -6,7 +6,7 @@ sphinx-copybutton>=0.3.2
 sphinx-automodapi
 furo
 
-yaml
+pyyaml
 scalpl
 distributred
 dask_gateway

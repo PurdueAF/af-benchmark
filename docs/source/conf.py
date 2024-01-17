@@ -2,6 +2,7 @@
 
 import sys
 sys.path.append('../../')
+sys.path.append('../../af_benchmark/')
 
 # -- Project information
 

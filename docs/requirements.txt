@@ -4,7 +4,6 @@ ipywidgets
 sphinx_rtd_theme
 sphinx-copybutton>=0.3.2
 sphinx-automodapi
-graphviz
 furo
 
 numpy

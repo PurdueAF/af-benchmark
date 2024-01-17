@@ -6,6 +6,7 @@ sphinx-copybutton>=0.3.2
 sphinx-automodapi
 furo
 
+numpy
 pyyaml
 scalpl
 distributed

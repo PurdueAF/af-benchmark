@@ -15,6 +15,6 @@ measurements:
     - ram
   report:
     - print
-parallelization:
-  parallelize: true
-  backend: dask-local
+engine:
+  backend: sequential
+  # backend: dask-local

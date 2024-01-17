@@ -8,5 +8,5 @@ furo
 
 pyyaml
 scalpl
-distributred
+distributed
 dask_gateway

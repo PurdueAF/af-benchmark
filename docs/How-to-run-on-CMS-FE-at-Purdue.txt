@@ -7,6 +7,7 @@ Build conda env:
 source /etc/profile.d/modules.sh
 module --force purge
 module spider conda
+(select e.g. the latest available version)
 module load anaconda/2021.05-py38
 conda config --add channels conda-forge
 conda create --prefix /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks python=3.10

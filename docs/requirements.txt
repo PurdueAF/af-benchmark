@@ -5,3 +5,8 @@ sphinx_rtd_theme
 sphinx-copybutton>=0.3.2
 sphinx-automodapi
 furo
+
+yaml
+scalpl
+distributred
+dask_gateway

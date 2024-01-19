@@ -4,7 +4,7 @@ engine:
 data-access:
   mode: local
   files: 
-    - /depot/cms/users/dkondra/test_nanoaod_depot.root
+    - tests/data/nano_dimuon.root
 processing:
   method: nanoevents
   columns:

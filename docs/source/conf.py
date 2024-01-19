@@ -30,7 +30,6 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "sphinx_rtd_theme",
     "sphinx_copybutton",
-
 ]
 
 #disable notebook execution
@@ -61,9 +60,13 @@ intersphinx_disabled_domains = ['std']
 # automodapi config
 numpydoc_show_class_members = False
 autodoc_default_options = {
+    "autosummary": True,
     "members": True,
     "undoc-members": True,
-    "private-members": True
+    "private-members": True,
+    "special-members": True,
+    "inherited-members": True,
+    "show-inheritance": True,
 }
 
 templates_path = ['_templates']

@@ -1,6 +1,9 @@
 Analysis Facility Benchmark
 =================================
 
-.. automodapi:: af_benchmark.benchmark
+.. toctree::
+    :caption: API Reference
+    :maxdepth: 1
 
-.. automodapi:: af_benchmark.engine.executor
+    benchmark
+    executor

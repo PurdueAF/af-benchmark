@@ -3,31 +3,22 @@ from abc import ABC, abstractmethod
 
 class BaseExecutor(ABC):
     """A base class for a benchmark executor
-
-
-    Methods
-    -------
-    execute(func, args, **kwargs)
-        Executes a given function over a list or dict of arguments,
-        and passes arbitrary keyword arguments to the function.
-        The particular meaning of "execution" is defined in `_execute()` method,
-        and implemented in inherited executor classes.
-    _execute(func, args, kwargs)
-        Abstract function, to be overriden in inherited classes.
     """
 
     def execute(self, func, args, **kwargs):
         """Executes a given function over a list or dict of arguments,
         and passes arbitrary keyword arguments to the function.
+        The particular meaning of "execution" is defined in ``_execute()`` method,
+        and implemented in inherited executor classes.
 
         Parameters
         ----------
         func : callable
             The function to be executed.
         args : list | dict
-            A list (or dict) of input arguments for `func`.
+            A list (or dict) of input arguments for ``func``.
         kwargs : dict, optional
-            Arbitrary keyword arguments passed to `func`.
+            Arbitrary keyword arguments passed to ``func``.
 
         Returns
         -------
@@ -61,7 +52,7 @@ class BaseExecutor(ABC):
 class SequentialExecutor(BaseExecutor):
     """Simple sequential executor
 
-    Processes arguments in a `for` loop.
+    Processes arguments in a ``for`` loop.
     """
 
     def _execute(self, func, args, kwargs):
@@ -70,7 +61,7 @@ class SequentialExecutor(BaseExecutor):
 class FuturesExecutor(BaseExecutor):
     """Futures executor
 
-    Uses `concurrent.futures` to parallelize execution over CPU cores
+    Uses ``concurrent.futures`` to parallelize execution over CPU cores
     on the same node where the benchmark is launched.
     """
 
@@ -83,12 +74,12 @@ class FuturesExecutor(BaseExecutor):
 class DaskLocalExecutor(BaseExecutor):
     """Dask executor with a local cluster
 
-    Creates a `LocalCluster`<https://docs.dask.org/en/stable/deploying-python.html#localcluster>_
+    Creates a `LocalCluster<https://docs.dask.org/en/stable/deploying-python.html#localcluster>`_
     and uses it to parallelize execution over local CPU cores (same node as the benchmark)
     """
 
     def __init__(self):
-        """Create a `LocalCluster` and a `Client` connected to it.
+        """Create a ``LocalCluster`` and a ``Client`` connected to it.
         """
 
         from dask.distributed import LocalCluster, Client

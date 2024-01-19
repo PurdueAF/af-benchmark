@@ -4,8 +4,10 @@ import scalpl
 from data_access.loader import get_file_list
 from processing.tools import open_nanoaod, validate_columns, run_operation
 from engine.executor import executors
+from profiling.timing import TimeProfiler
+tp = TimeProfiler()
 
-
+@tp.profile
 def read_yaml(file_path):
     try:
         with open(file_path, 'r') as file:
@@ -30,6 +32,7 @@ class Benchmark:
                 f"Invalid backend: {backend}. Allowed values are: {executors.keys()}"
             )
 
+    @tp.profile
     def run(self):
         files = get_file_list(self)
 
@@ -56,3 +59,4 @@ if __name__ == "__main__":
     b = Benchmark(args.config_file)
     outputs = b.run()
     print(outputs)
+    tp.print_stats()

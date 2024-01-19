@@ -2,7 +2,39 @@ from abc import ABC, abstractmethod
 
 
 class BaseExecutor(ABC):
+    """A base class for a benchmark executor
+
+
+    Methods
+    -------
+    execute(func, args, **kwargs)
+        Executes a given function over a list or dict of arguments,
+        and passes arbitrary keyword arguments to the function.
+        The particular meaning of "execution" is defined in `_execute()` method,
+        and implemented in inherited executor classes.
+    _execute(func, args, kwargs)
+        Abstract function, to be overriden in inherited classes.
+    """
+
     def execute(self, func, args, **kwargs):
+        """Executes a given function over a list or dict of arguments,
+        and passes arbitrary keyword arguments to the function.
+
+        Parameters
+        ----------
+        func : callable
+            The function to be executed.
+        args : list | dict
+            A list (or dict) of input arguments for `func`.
+        kwargs : dict, optional
+            Arbitrary keyword arguments passed to `func`.
+
+        Returns
+        -------
+        results: list | dict
+            Results of the execution in the same format as input arguments.
+        """
+
         is_list = isinstance(args, list)
         is_dict = isinstance(args, dict)
         if not (is_list or is_dict):
@@ -20,14 +52,28 @@ class BaseExecutor(ABC):
 
     @abstractmethod
     def _execute(self, func, args, kwargs):
+        """Executor-specific implementation (see inherited classes)
+        """
+
         pass
 
 
 class SequentialExecutor(BaseExecutor):
+    """Simple sequential executor
+
+    Processes arguments in a `for` loop.
+    """
+
     def _execute(self, func, args, kwargs):
         return [func(arg, kwargs) for arg in args]
 
 class FuturesExecutor(BaseExecutor):
+    """Futures executor
+
+    Uses `concurrent.futures` to parallelize execution over CPU cores
+    on the same node where the benchmark is launched.
+    """
+
     def _execute(self, func, args, kwargs):
         from concurrent import futures
         with futures.ThreadPoolExecutor() as executor:
@@ -35,13 +81,25 @@ class FuturesExecutor(BaseExecutor):
         return results
 
 class DaskLocalExecutor(BaseExecutor):
+    """Dask executor with a local cluster
+
+    Creates a `LocalCluster`<https://docs.dask.org/en/stable/deploying-python.html#localcluster>_
+    and uses it to parallelize execution over local CPU cores (same node as the benchmark)
+    """
+
     def __init__(self):
+        """Create a `LocalCluster` and a `Client` connected to it.
+        """
+
         from dask.distributed import LocalCluster, Client
         self.cluster = LocalCluster()
         self.client = Client(self.cluster)
         print("Created Dask LocalCluster()")
 
     def __del__(self):
+        """Shut down the client and the cluster in the end of benchmarking.
+        """
+
         if hasattr(self, 'cluster') and self.cluster is not None:
             self.cluster.close()
             print("Closed Dask cluster")
@@ -56,12 +114,24 @@ class DaskLocalExecutor(BaseExecutor):
         return results
 
 class DaskGatewayExecutor(BaseExecutor):
+    """Dask Gateway executor
+
+    Searches for an existing Gateway cluster and uses it to parallelize execution
+    over multiple nodes using a batch system defined in Dask Gateway's backend (e.g. Slurm).
+    """
+
     def __init__(self):
         from dask_gateway import Gateway
         self.gateway = Gateway()
         self._find_gateway_client()
 
     def _find_gateway_client(self):
+        """Searches for an existing Dask Gateway cluster and connects to it automatically.
+
+        If no Gateway clusters are found, an error is raised. If more than one Gateway cluster
+        is found, connect to the first found one.
+        """
+
         clusters = self.gateway.list_clusters()
         if len(clusters)==0:
             raise Error("No Dask Gateway clusters found")

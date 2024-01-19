@@ -62,10 +62,6 @@ numpydoc_show_class_members = False
 autodoc_default_options = {
     "autosummary": True,
     "members": True,
-    "undoc-members": True,
-    "private-members": True,
-    "special-members": True,
-    "inherited-members": True,
     "show-inheritance": True,
 }
 

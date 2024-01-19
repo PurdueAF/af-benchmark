@@ -44,6 +44,8 @@ class BaseExecutor(ABC):
     @abstractmethod
     def _execute(self, func, args, kwargs):
         """Executor-specific implementation (see inherited classes)
+
+        :meta public:
         """
 
         pass
@@ -56,6 +58,10 @@ class SequentialExecutor(BaseExecutor):
     """
 
     def _execute(self, func, args, kwargs):
+        """Execute ``func`` over ``args`` in a loop.
+        
+        :meta public:
+        """
         return [func(arg, kwargs) for arg in args]
 
 class FuturesExecutor(BaseExecutor):
@@ -66,6 +72,10 @@ class FuturesExecutor(BaseExecutor):
     """
 
     def _execute(self, func, args, kwargs):
+        """Execute ``func`` over ``args`` in parallel using ``concurrent.futures.ThreadPoolExecutor``.
+        
+        :meta public:
+        """
         from concurrent import futures
         with futures.ThreadPoolExecutor() as executor:
             results = list(executor.map(func, args, [kwargs] * len(args)))
@@ -74,12 +84,14 @@ class FuturesExecutor(BaseExecutor):
 class DaskLocalExecutor(BaseExecutor):
     """Dask executor with a local cluster
 
-    Creates a `LocalCluster<https://docs.dask.org/en/stable/deploying-python.html#localcluster>`_
+    Creates a `LocalCluster <https://docs.dask.org/en/stable/deploying-python.html#localcluster>`_
     and uses it to parallelize execution over local CPU cores (same node as the benchmark)
     """
 
     def __init__(self):
         """Create a ``LocalCluster`` and a ``Client`` connected to it.
+
+        :meta public:
         """
 
         from dask.distributed import LocalCluster, Client
@@ -89,6 +101,8 @@ class DaskLocalExecutor(BaseExecutor):
 
     def __del__(self):
         """Shut down the client and the cluster in the end of benchmarking.
+
+        :meta public:
         """
 
         if hasattr(self, 'cluster') and self.cluster is not None:
@@ -98,6 +112,10 @@ class DaskLocalExecutor(BaseExecutor):
             self.client.close()
 
     def _execute(self, func, args, kwargs):
+        """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
+        
+        :meta public:
+        """
         args_sc = self.client.scatter(args)
         futures = [self.client.submit(func, arg, kwargs) for arg in args_sc]
         results = self.client.gather(futures)
@@ -135,6 +153,10 @@ class DaskGatewayExecutor(BaseExecutor):
         self.client = self.cluster.get_client()
 
     def _execute(self, func, args, kwargs):
+        """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
+        
+        :meta public:
+        """
         args_sc = self.client.scatter(args)
         futures = [self.client.submit(func, arg, kwargs) for arg in args_sc]
         results = self.client.gather(futures)

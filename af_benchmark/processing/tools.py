@@ -1,5 +1,7 @@
 import numpy as np
+from profiling.timing import time_profiler as tp
 
+@tp.enable
 def open_nanoaod(file_path, kwargs):
     method = kwargs.get('method', 'nanoevents')
 
@@ -16,6 +18,7 @@ def open_nanoaod(file_path, kwargs):
        )
     return tree
 
+@tp.enable
 def validate_columns(tree, kwargs):
     columns_to_read = kwargs.get('columns_to_read', [])
     columns = {}
@@ -29,6 +32,7 @@ def validate_columns(tree, kwargs):
             raise ValueError(f"Error reading column: {column}")
     return columns
 
+@tp.enable
 def run_operation(columns, kwargs):
     operation = kwargs.get('operation', None)
     results = {}

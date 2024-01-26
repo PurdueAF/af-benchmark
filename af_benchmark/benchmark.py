@@ -4,10 +4,15 @@ import scalpl
 from data_access.loader import get_file_list
 from processing.tools import open_nanoaod, validate_columns, run_operation
 from engine.executor import executors
-from profiling.timing import TimeProfiler
-tp = TimeProfiler()
 
-@tp.profile
+from profiling.timing import time_profiler as tp
+
+# For cross-check, use @timecall decorator:
+# from profilehooks import timecall
+
+
+# @timecall
+@tp.enable
 def read_yaml(file_path):
     try:
         with open(file_path, 'r') as file:
@@ -22,6 +27,7 @@ def read_yaml(file_path):
 
 
 class Benchmark:
+    @tp.enable
     def __init__(self, config_path):
         self.config = read_yaml(config_path)
         backend = self.config.get('engine.backend')
@@ -32,7 +38,7 @@ class Benchmark:
                 f"Invalid backend: {backend}. Allowed values are: {executors.keys()}"
             )
 
-    @tp.profile
+    @tp.enable
     def run(self):
         files = get_file_list(self)
 
@@ -51,12 +57,16 @@ class Benchmark:
         return outputs
 
 
+@tp.profile
+def run_benchmark(args):
+    b = Benchmark(args.config_file)
+    outputs = b.run()
+    print(outputs)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('config_file', help="Path to YAML config")
     args = parser.parse_args()
-
-    b = Benchmark(args.config_file)
-    outputs = b.run()
-    print(outputs)
+    run_benchmark(args)
     tp.print_stats()

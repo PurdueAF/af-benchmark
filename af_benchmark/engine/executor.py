@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
+from profiling.timing import time_profiler as tp
 
 
 class BaseExecutor(ABC):
     """A base class for a benchmark executor
     """
 
+    @tp.enable
     def execute(self, func, args, **kwargs):
         """Executes a given function over a list or dict of arguments,
         and passes arbitrary keyword arguments to the function.
@@ -41,6 +43,7 @@ class BaseExecutor(ABC):
 
         return results
 
+    @tp.enable
     @abstractmethod
     def _execute(self, func, args, kwargs):
         """Executor-specific implementation (see inherited classes)
@@ -57,6 +60,7 @@ class SequentialExecutor(BaseExecutor):
     Processes arguments in a ``for`` loop.
     """
 
+    @tp.enable
     def _execute(self, func, args, kwargs):
         """Execute ``func`` over ``args`` in a loop.
         
@@ -71,6 +75,7 @@ class FuturesExecutor(BaseExecutor):
     on the same node where the benchmark is launched.
     """
 
+    @tp.enable
     def _execute(self, func, args, kwargs):
         """Execute ``func`` over ``args`` in parallel using ``concurrent.futures.ThreadPoolExecutor``.
         
@@ -88,6 +93,7 @@ class DaskLocalExecutor(BaseExecutor):
     and uses it to parallelize execution over local CPU cores (same node as the benchmark)
     """
 
+    @tp.enable
     def __init__(self):
         """Create a ``LocalCluster`` and a ``Client`` connected to it.
 
@@ -99,6 +105,7 @@ class DaskLocalExecutor(BaseExecutor):
         self.client = Client(self.cluster)
         print("Created Dask LocalCluster()")
 
+    @tp.enable
     def __del__(self):
         """Shut down the client and the cluster in the end of benchmarking.
 
@@ -111,6 +118,7 @@ class DaskLocalExecutor(BaseExecutor):
         if hasattr(self, 'client') and self.client is not None:
             self.client.close()
 
+    @tp.enable
     def _execute(self, func, args, kwargs):
         """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
         
@@ -129,11 +137,13 @@ class DaskGatewayExecutor(BaseExecutor):
     over multiple nodes using a batch system defined in Dask Gateway's backend (e.g. Slurm).
     """
 
+    @tp.enable
     def __init__(self):
         from dask_gateway import Gateway
         self.gateway = Gateway()
         self._find_gateway_client()
 
+    @tp.enable
     def _find_gateway_client(self):
         """Searches for an existing Dask Gateway cluster and connects to it automatically.
 
@@ -152,6 +162,7 @@ class DaskGatewayExecutor(BaseExecutor):
         self.cluster = self.gateway.connect(first_cluster_name)
         self.client = self.cluster.get_client()
 
+    @tp.enable
     def _execute(self, func, args, kwargs):
         """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
         

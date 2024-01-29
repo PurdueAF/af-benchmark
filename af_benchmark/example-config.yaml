@@ -1,12 +1,15 @@
-engine:
+executor:
   backend: sequential
+  # backend: futures
+  # backend: dask-local
   # backend: dask-gateway
 data-access:
   mode: local
   files: 
     - tests/data/nano_dimuon.root
 processing:
-  method: nanoevents
+  method: uproot
+  # method: nanoevents
   columns:
     - event
     - Muon_pt

@@ -21,7 +21,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config Uproot + SequentialExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_sequential.yml
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_sequential.yaml
 
   uproot_futures:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config Uproot + FuturesExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_futures.yml
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_futures.yaml
 
   uproot_dask_local:
     runs-on: ubuntu-latest
@@ -55,7 +55,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config Uproot + DaskLocalExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_dask_local.yml
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_dask_local.yaml
 
   nanoevents_sequential:
     runs-on: ubuntu-latest
@@ -72,7 +72,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config NanoEvents + SequentialExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_sequential.yml
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_sequential.yaml
 
   nanoevents_futures:
     runs-on: ubuntu-latest
@@ -89,7 +89,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config NanoEvents + FuturesExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_futures.yml
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_futures.yaml
 
   nanoevents_dask_local:
     runs-on: ubuntu-latest
@@ -106,6 +106,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run test config NanoEvents + DaskLocalExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_dask_local.yml
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_dask_local.yaml
 
 

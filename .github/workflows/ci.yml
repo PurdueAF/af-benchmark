@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  uproot_sequential:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: Uproot + SequentialExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_sequential.yaml
+
+  uproot_futures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: Uproot + FuturesExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_futures.yaml
+
+  uproot_dask_local:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: Uproot + DaskLocalExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_uproot_dask_local.yaml
+
+  nanoevents_sequential:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: NanoEvents + SequentialExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_sequential.yaml
+
+  nanoevents_futures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: NanoEvents + FuturesExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_futures.yaml
+
+  nanoevents_dask_local:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test config: NanoEvents + DaskLocalExecutor
+        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_dask_local.yaml
+
+

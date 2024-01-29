@@ -1,0 +1,12 @@
+executor:
+  backend: sequential
+data-access:
+  mode: local
+  files: 
+    - tests/data/nano_dimuon.root
+processing:
+  method: uproot
+  columns:
+    - event
+    - Muon_pt
+  operation: mean

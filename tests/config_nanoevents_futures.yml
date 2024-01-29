@@ -1,0 +1,12 @@
+executor:
+  backend: futures
+data-access:
+  mode: local
+  files: 
+    - tests/data/nano_dimuon.root
+processing:
+  method: nanoevents
+  columns:
+    - event
+    - Muon_pt
+  operation: mean

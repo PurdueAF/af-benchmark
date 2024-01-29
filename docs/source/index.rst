@@ -3,7 +3,6 @@ Analysis Facility Benchmark
 
 .. toctree::
     :caption: API Reference
-    :maxdepth: 1
+    :maxdepth: 2
 
     benchmark
-    executor

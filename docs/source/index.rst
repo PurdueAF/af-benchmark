@@ -1,8 +1,5 @@
-Analysis Facility Benchmark
-=================================
+.. include:: ../../README.md
 
 .. toctree::
-    :caption: API Reference
-    :maxdepth: 2
 
-    benchmark
+    modules/modules

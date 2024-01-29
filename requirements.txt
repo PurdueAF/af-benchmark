@@ -1,7 +1,7 @@
 numpy
+pandas
 pyyaml
 scalpl
 distributed
 dask_gateway
 coffea==0.7.21
-

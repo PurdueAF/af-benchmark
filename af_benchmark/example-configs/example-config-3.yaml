@@ -15,7 +15,7 @@ processor:
   columns:
     - event
     - Muon_pt
-    # - Muon_eta
+    - Muon_eta
   operation: sum
   write: false
 measurements:

@@ -35,19 +35,7 @@ def read_yaml(file_path):
 
 class Benchmark:
     def __init__(self, config_path=None):
-        self.report_df = pd.DataFrame(
-            columns=[
-                "dataset",
-                "n_files",
-                "n_columns_read",
-                "bytes_read",
-                "n_workers",
-                "total_time",
-                "operation",
-                "executor",
-                "processor",
-            ]
-        )
+        self.report_df = pd.DataFrame()
         if config_path:
             self.reinitialize(config_path)
 
@@ -79,7 +67,6 @@ class Benchmark:
     @tp.enable
     def run(self):
         files = get_file_list(self)
-        self.n_files = len(files)
 
         trees = self.executor.execute(
             self.processor.open_nanoaod, files
@@ -96,36 +83,45 @@ class Benchmark:
         return outputs
 
     def update_report(self):
-        # print(tp.report_df)
-        run_time = tp.report_df.loc[
-            tp.report_df.func_name=="run",
-            "func_time"
-        ].values[0]
+        report = {
+            "n_files": self.n_files,
+            "n_columns_read": len(self.config.get('processor.columns')),
+            "processor": self.method,
+            "operation": self.config.get('processor.operation'),
+            "executor": self.backend,
+            "n_workers": self.executor.get_n_workers(),
+        }
+
+        # Add column size measurements
+        col_stats = self.processor.col_stats
+        if "compressed_bytes" in col_stats.columns:
+            report.update({
+                "compressed_bytes": col_stats.compressed_bytes.sum()
+            })
+        if "uncompressed_bytes" in col_stats.columns:
+            report.update({
+                "uncompressed_bytes": col_stats.uncompressed_bytes.sum()
+            })
+
+        # Add timing measurements
+        report.update(
+            dict(
+                zip(tp.report_df.func_name, tp.report_df.func_time)
+            )
+        )
 
         self.report_df = pd.concat([
             self.report_df,
-            pd.DataFrame([{
-                "dataset": "",
-                "n_files": self.n_files,
-                "n_columns_read": len(self.config.get('processor.columns')),
-                "n_workers": self.executor.get_n_workers(),
-                "total_time": run_time,
-                "operation": self.config.get('processor.operation'),
-                "executor": self.backend,
-                "processor": self.method,
-            }])
-        ])
-
-    def print_report(self):
-        print(self.report_df)
+            pd.DataFrame([report])
+        ]).reset_index(drop=True)
 
 
-def run_benchmark(args):
+def run_benchmark(config_path):
     
-    if args.config_path.endswith(".yaml") or args.config_path.endswith(".yml"):
-        configs = [args.config_path]
+    if config_path.endswith(".yaml") or config_path.endswith(".yml"):
+        configs = [config_path]
     else:
-        configs = glob.glob(args.config_path+"/*.yaml") + glob.glob(args.config_path+"/*.yml")
+        configs = glob.glob(config_path+"/*.yaml") + glob.glob(config_path+"/*.yml")
 
     b = Benchmark()
     for config_file in configs:
@@ -134,11 +130,11 @@ def run_benchmark(args):
         b.run()
         b.update_report()
 
-    b.print_report()
+    return b.report_df
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('config_path', help="Path to YAML config or directory with YAML configs")
     args = parser.parse_args()
-    run_benchmark(args)
+    run_benchmark(args.config_path)

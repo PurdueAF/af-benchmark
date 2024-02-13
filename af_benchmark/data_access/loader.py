@@ -11,5 +11,6 @@ def get_file_list(cls):
         raise NotImplementedError(
             f"Data access modes other than 'local' and 'local_dir' are not yet implemented"
         )
-        
+
+    cls.n_files = len(file_list)
     return file_list

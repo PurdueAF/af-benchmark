@@ -1,6 +1,6 @@
 executor:
-  backend: sequential
-  # backend: futures
+  # backend: sequential
+  backend: futures
   # backend: dask-local
   # backend: dask-gateway
 data-access:
@@ -14,8 +14,8 @@ processor:
   # method: nanoevents
   columns:
     - event
-    - Muon_pt
-    - Muon_eta
+    # - Muon_pt
+    # - Muon_eta
   operation: sum
   write: false
 measurements:

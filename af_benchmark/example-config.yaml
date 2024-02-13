@@ -4,12 +4,12 @@ executor:
   # backend: dask-local
   # backend: dask-gateway
 data-access:
-  # mode: local
-  # files: 
-  #   - tests/data/nano_dimuon.root
-  mode: local_dir
-  files_dir: /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/
-processing:
+  mode: local
+  files: 
+    - tests/data/nano_dimuon.root
+  # mode: local_dir
+  # files_dir: /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/
+processor:
   method: uproot
   # method: nanoevents
   columns:

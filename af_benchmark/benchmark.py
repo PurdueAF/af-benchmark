@@ -6,7 +6,7 @@ import pandas as pd
 
 from profiling.timing import time_profiler as tp
 from data_access.loader import get_file_list
-from processing.handler import handlers
+from processor.processor import processors
 
 from executor.sequential import SequentialExecutor
 from executor.futures import FuturesExecutor
@@ -40,11 +40,12 @@ class Benchmark:
                 "dataset",
                 "n_files",
                 "n_columns_read",
+                "bytes_read",
                 "n_workers",
                 "total_time",
                 "operation",
                 "executor",
-                "col_handler",
+                "processor",
             ]
         )
         if config_path:
@@ -64,13 +65,13 @@ class Benchmark:
                 f"Invalid backend: {self.backend}. Allowed values are: {executors.keys()}"
             )
 
-        # Select file handler method
-        self.method = self.config.get('processing.method')
-        if self.method in handlers:
-            self.handler = handlers[self.method](self.config)
+        # Select processor method
+        self.method = self.config.get('processor.method')
+        if self.method in processors:
+            self.processor = processors[self.method](self.config)
         else:
             raise NotImplementedError(
-                f"Invalid method: {self.method}. Allowed values are: {handlers.keys()}"
+                f"Invalid method: {self.method}. Allowed values are: {processors.keys()}"
             )
 
 
@@ -81,15 +82,15 @@ class Benchmark:
         self.n_files = len(files)
 
         trees = self.executor.execute(
-            self.handler.open_nanoaod, files
+            self.processor.open_nanoaod, files
         )
 
         columns_by_file = self.executor.execute(
-            self.handler.read_columns, trees
+            self.processor.read_columns, trees
         )
         
         outputs = self.executor.execute(
-            self.handler.run_operation, columns_by_file
+            self.processor.run_operation, columns_by_file
         )
 
         return outputs
@@ -106,12 +107,12 @@ class Benchmark:
             pd.DataFrame([{
                 "dataset": "",
                 "n_files": self.n_files,
-                "n_columns_read": len(self.config.get('processing.columns')),
+                "n_columns_read": len(self.config.get('processor.columns')),
                 "n_workers": self.executor.get_n_workers(),
                 "total_time": run_time,
-                "operation": self.config.get('processing.operation'),
+                "operation": self.config.get('processor.operation'),
                 "executor": self.backend,
-                "col_handler": self.method,
+                "processor": self.method,
             }])
         ])
 

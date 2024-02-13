@@ -6,8 +6,8 @@ import uproot
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 
 
-class BaseColumnHandler(ABC):
-    """A base column handler class
+class BaseProcessor(ABC):
+    """A base processor class
     """
     def __init__(self, config):
         self.config=config
@@ -29,7 +29,7 @@ class BaseColumnHandler(ABC):
         return
 
 
-class UprootColumnHandler(BaseColumnHandler):
+class UprootProcessor(BaseProcessor):
     def __init__(self, config):
         self.config = config
         self.col_stats = pd.DataFrame(
@@ -48,7 +48,7 @@ class UprootColumnHandler(BaseColumnHandler):
 
     @tp.enable
     def read_columns(self, tree, **kwargs):
-        columns_to_read = self.config.get('processing.columns')
+        columns_to_read = self.config.get('processor.columns')
         column_data = {}
         for column in columns_to_read:
             if column in tree.keys():
@@ -66,7 +66,7 @@ class UprootColumnHandler(BaseColumnHandler):
         return column_data
 
     def run_operation(self, columns, **kwargs):
-        operation = self.config.get('processing.operation')
+        operation = self.config.get('processor.operation')
         results = {}
         for name, data in columns.items():
             if operation == 'array':
@@ -78,7 +78,7 @@ class UprootColumnHandler(BaseColumnHandler):
 
 
 
-class NanoEventsColumnHandler(BaseColumnHandler):
+class NanoEventsProcessor(BaseProcessor):
     def open_nanoaod(self, file_path, **kwargs):
         tree = NanoEventsFactory.from_root(
             file_path,
@@ -88,7 +88,7 @@ class NanoEventsColumnHandler(BaseColumnHandler):
         return tree
 
     def read_columns(self, tree, **kwargs):
-        columns_to_read = self.config.get('processing.columns')
+        columns_to_read = self.config.get('processor.columns')
         column_data = {}        
         for column in columns_to_read:
             if column in tree.fields:
@@ -101,7 +101,7 @@ class NanoEventsColumnHandler(BaseColumnHandler):
         return column_data
 
     def run_operation(self, columns, **kwargs):
-        operation = self.config.get('processing.operation')
+        operation = self.config.get('processor.operation')
         results = {}
         for name, data in columns.items():
             if operation == 'mean':        
@@ -109,9 +109,9 @@ class NanoEventsColumnHandler(BaseColumnHandler):
         return results
 
 
-handlers = {
-    'uproot': UprootColumnHandler,
-    'nanoevents': NanoEventsColumnHandler
+processors = {
+    'uproot': UprootProcessor,
+    'nanoevents': NanoEventsProcessor
 }
 
         

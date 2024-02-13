@@ -1,5 +1,6 @@
 from executor.base import BaseExecutor
 from profiling.timing import time_profiler as tp
+import dask
 from dask.distributed import LocalCluster, Client
 from dask_gateway import Gateway
 
@@ -18,6 +19,8 @@ class DaskLocalExecutor(BaseExecutor):
         :meta public:
         """
 
+        # disable GPU diagnostics to prevent Dask from crashing
+        dask.config.set({"distributed.diagnostics.nvml": False})
         self.cluster = LocalCluster()
         self.client = Client(self.cluster)
         print("Created Dask LocalCluster()")
@@ -46,6 +49,9 @@ class DaskLocalExecutor(BaseExecutor):
         results = self.client.gather(futures)
         results = list(results)
         return results
+
+    def get_n_workers(self):
+        return len(self.client.scheduler_info()['workers'])
 
 class DaskGatewayExecutor(BaseExecutor):
     """Dask Gateway executor
@@ -89,3 +95,6 @@ class DaskGatewayExecutor(BaseExecutor):
         results = self.client.gather(futures)
         results = list(results)
         return results
+
+    def get_n_workers(self):
+        return len(self.client.scheduler_info()['workers'])

@@ -1,6 +1,7 @@
 from executor.base import BaseExecutor
 from profiling.timing import time_profiler as tp
 from concurrent import futures
+import multiprocessing
 
 class FuturesExecutor(BaseExecutor):
     """Futures executor
@@ -16,5 +17,9 @@ class FuturesExecutor(BaseExecutor):
         :meta public:
         """
         with futures.ThreadPoolExecutor() as executor:
+            self.max_workers = executor._max_workers
             results = list(executor.map(lambda arg: func(arg, **kwargs), args))
         return results
+
+    def get_n_workers(self):
+        return self.max_workers

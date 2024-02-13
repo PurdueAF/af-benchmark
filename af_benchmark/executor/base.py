@@ -51,4 +51,8 @@ class BaseExecutor(ABC):
         :meta public:
         """
 
-        pass
+        return
+
+    @abstractmethod
+    def get_n_workers(self):
+        return

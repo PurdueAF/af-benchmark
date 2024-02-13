@@ -1,6 +1,5 @@
 from executor.base import BaseExecutor
 from concurrent import futures
-import multiprocessing
 
 class FuturesExecutor(BaseExecutor):
     """Futures executor

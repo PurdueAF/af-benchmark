@@ -1,5 +1,5 @@
 from executor.base import BaseExecutor
-from profiling.timing import time_profiler as tp
+# from profiling.timing import time_profiler as tp
 import dask
 from dask.distributed import LocalCluster, Client
 from dask_gateway import Gateway
@@ -12,7 +12,7 @@ class DaskLocalExecutor(BaseExecutor):
     and uses it to parallelize execution over local CPU cores (same node as the benchmark)
     """
 
-    @tp.enable
+    # @tp.enable
     def __init__(self):
         """Create a ``LocalCluster`` and a ``Client`` connected to it.
 
@@ -25,7 +25,7 @@ class DaskLocalExecutor(BaseExecutor):
         self.client = Client(self.cluster)
         print("Created Dask LocalCluster()")
 
-    @tp.enable
+    # @tp.enable
     def __del__(self):
         """Shut down the client and the cluster in the end of benchmarking.
 
@@ -59,12 +59,12 @@ class DaskGatewayExecutor(BaseExecutor):
     over multiple nodes using a batch system defined in Dask Gateway's backend (e.g. Slurm).
     """
 
-    @tp.enable
+    # @tp.enable
     def __init__(self):
         self.gateway = Gateway()
         self._find_gateway_client()
 
-    @tp.enable
+    # @tp.enable
     def _find_gateway_client(self):
         """Searches for an existing Dask Gateway cluster and connects to it automatically.
 

@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from profiling.timing import time_profiler as tp
+# from profiling.timing import time_profiler as tp
 
 
 class BaseExecutor(ABC):
     """A base class for a benchmark executor
     """
 
-    @tp.enable
+    # @tp.enable
     def execute(self, func, args, **kwargs):
         """Executes a given function over a list or dict of arguments,
         and passes arbitrary keyword arguments to the function.

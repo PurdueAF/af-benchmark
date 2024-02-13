@@ -65,6 +65,7 @@ class UprootProcessor(BaseProcessor):
             self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
         return column_data
 
+    @tp.enable
     def run_operation(self, columns, **kwargs):
         operation = self.config.get('processor.operation')
         results = {}

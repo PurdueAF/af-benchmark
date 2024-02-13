@@ -83,9 +83,13 @@ class Benchmark:
         return outputs
 
     def update_report(self):
+        n_cols_read = self.config.get('processor.columns')
+        if isinstance(n_cols_read, list):
+            n_cols_read = len(n_cols_read)
+        
         report = {
             "n_files": self.n_files,
-            "n_columns_read": len(self.config.get('processor.columns')),
+            "n_columns_read": n_cols_read,
             "processor": self.method,
             "operation": self.config.get('processor.operation'),
             "executor": self.backend,

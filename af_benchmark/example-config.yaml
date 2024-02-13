@@ -12,10 +12,10 @@ data-access:
 processor:
   method: uproot
   # method: nanoevents
-  columns:
-    - event
-    - Muon_pt
-    - Muon_eta
+  columns: 5
+    # - event
+    # - Muon_pt
+    # - Muon_eta
   operation: sum
   write: false
 measurements:

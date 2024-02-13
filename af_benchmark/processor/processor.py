@@ -49,12 +49,18 @@ class UprootProcessor(BaseProcessor):
     @tp.enable
     def read_columns(self, tree, **kwargs):
         columns_to_read = self.config.get('processor.columns')
-        column_data = {}
-        for column in columns_to_read:
-            if column in tree.keys():
-                branch = tree[column]
-            else:
+        if isinstance(columns_to_read, list):
+            if [c not in tree.keys() for c in columns_to_read].any():
                 raise ValueError(f"Error reading column: {column}")
+            column_names = columns_to_read
+        elif isinstance(columns_to_read, int):
+            column_names = list(tree.keys())[:columns_to_read]
+            if len(column_names)<columns_to_read:
+                raise ValueError(f"Trying to read {columns_to_read} columns, but only {len(column_names)} present in file.")
+
+        column_data = {}
+        for column in column_names:
+            branch = tree[column]
             column_data[column] = branch
             col_stats = pd.DataFrame([{
                 "file": tree.file.file_path,
@@ -64,6 +70,10 @@ class UprootProcessor(BaseProcessor):
             }])
             self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
         return column_data
+
+    def read_n_columns(self, tree, **kwargs):
+        icol = 0
+        
 
     @tp.enable
     def run_operation(self, columns, **kwargs):
@@ -90,6 +100,8 @@ class NanoEventsProcessor(BaseProcessor):
 
     def read_columns(self, tree, **kwargs):
         columns_to_read = self.config.get('processor.columns')
+        if not isinstance(columns_to_read, list):
+            raise NotImplementedError("For NanoEventsProcessor, only explicit list of columns is currently possible")
         column_data = {}        
         for column in columns_to_read:
             if column in tree.fields:

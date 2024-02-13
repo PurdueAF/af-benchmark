@@ -1,6 +1,7 @@
 import argparse
 import yaml
 import scalpl
+import glob
 import pandas as pd
 
 from profiling.timing import time_profiler as tp
@@ -33,11 +34,7 @@ def read_yaml(file_path):
 
 
 class Benchmark:
-    @tp.enable
-    def __init__(self, config_path):
-        print("  > Reading config")
-        self.config = read_yaml(config_path)
-
+    def __init__(self, config_path=None):
         self.report_df = pd.DataFrame(
             columns=[
                 "dataset",
@@ -50,9 +47,14 @@ class Benchmark:
                 "col_handler",
             ]
         )
-        self.n_files = 0
+        if config_path:
+            self.reinitialize(config_path)
 
-        print("  > Initializing executor")
+    def reinitialize(self, config_path):
+        tp.reset()
+
+        self.config = read_yaml(config_path)
+
         # Select executor backend
         self.backend = self.config.get('executor.backend')
         if self.backend in executors:
@@ -62,7 +64,6 @@ class Benchmark:
                 f"Invalid backend: {self.backend}. Allowed values are: {executors.keys()}"
             )
 
-        print("  > Initializing column handler")
         # Select file handler method
         self.method = self.config.get('processing.method')
         if self.method in handlers:
@@ -93,8 +94,9 @@ class Benchmark:
 
         return outputs
 
-    def report(self):
-        run_stats = tp.report_df.loc[
+    def update_report(self):
+        # print(tp.report_df)
+        run_time = tp.report_df.loc[
             tp.report_df.func_name=="run",
             "func_time"
         ].values[0]
@@ -113,20 +115,29 @@ class Benchmark:
             }])
         ])
 
+    def print_report(self):
         print(self.report_df)
 
 
 def run_benchmark(args):
-    print("> Creating benchmark ...")
-    b = Benchmark(args.config_file)
-    print("> Starting benchmark ...")
-    outputs = b.run()
-    print("> Benchmark finished")
-    b.report()
+    
+    if args.config_path.endswith(".yaml") or args.config_path.endswith(".yml"):
+        configs = [args.config_path]
+    else:
+        configs = glob.glob(args.config_path+"/*.yaml") + glob.glob(args.config_path+"/*.yml")
+
+    b = Benchmark()
+    for config_file in configs:
+        print(f"> Loading config from {config_file}")
+        b.reinitialize(config_file)
+        b.run()
+        b.update_report()
+
+    b.print_report()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('config_file', help="Path to YAML config")
+    parser.add_argument('config_path', help="Path to YAML config or directory with YAML configs")
     args = parser.parse_args()
     run_benchmark(args)

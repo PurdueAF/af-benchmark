@@ -8,6 +8,10 @@ class TimeProfiler:
         self.profiler = cProfile.Profile()
         self.report_df = pd.DataFrame()
         self.enabled = []
+
+    def reset(self):
+        self.__init__()
+
     def enable(self, func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):

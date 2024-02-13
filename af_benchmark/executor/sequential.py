@@ -1,5 +1,4 @@
 from executor.base import BaseExecutor
-from profiling.timing import time_profiler as tp
 import tqdm
 
 
@@ -9,7 +8,6 @@ class SequentialExecutor(BaseExecutor):
     Processes arguments in a ``for`` loop.
     """
 
-    @tp.enable
     def _execute(self, func, args, **kwargs):
         """Execute ``func`` over ``args`` in a loop.
         

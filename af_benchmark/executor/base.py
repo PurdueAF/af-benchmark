@@ -43,7 +43,6 @@ class BaseExecutor(ABC):
 
         return results
 
-    @tp.enable
     @abstractmethod
     def _execute(self, func, args, **kwargs):
         """Executor-specific implementation (see inherited classes)

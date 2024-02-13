@@ -1,0 +1,18 @@
+executor:
+  backend: sequential
+data-access:
+  mode: local_dir
+  files_dir: /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/
+processing:
+  method: uproot
+  columns:
+    - event
+    - Muon_pt
+  operation: sum
+  write: false
+measurements:
+  what:
+    - timing
+    - ram
+  report:
+    - print

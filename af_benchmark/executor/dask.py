@@ -38,7 +38,6 @@ class DaskLocalExecutor(BaseExecutor):
         if hasattr(self, 'client') and self.client is not None:
             self.client.close()
 
-    @tp.enable
     def _execute(self, func, args, **kwargs):
         """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
         
@@ -84,7 +83,6 @@ class DaskGatewayExecutor(BaseExecutor):
         self.cluster = self.gateway.connect(first_cluster_name)
         self.client = self.cluster.get_client()
 
-    @tp.enable
     def _execute(self, func, args, **kwargs):
         """Execute ``func`` over ``args`` in parallel using ``distributed.Client::submit()``.
         

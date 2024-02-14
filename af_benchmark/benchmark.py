@@ -150,4 +150,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('config_path', help="Path to YAML config or directory with YAML configs")
     args = parser.parse_args()
-    run_benchmark(args.config_path)
+    report = run_benchmark(args.config_path)
+    print(report)

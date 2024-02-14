@@ -40,10 +40,15 @@ class Benchmark:
             self.reinitialize(config_path)
 
     def reinitialize(self, config_path):
+        self.config = read_yaml(config_path)
+        self.reset_profiler()
+        self.reset_executor()
+        self.reset_processor()
+
+    def reset_profiler(self):
         tp.reset()
 
-        self.config = read_yaml(config_path)
-
+    def reset_executor(self):
         # Select executor backend
         self.backend = self.config.get('executor.backend')
         if self.backend in executors:
@@ -53,6 +58,7 @@ class Benchmark:
                 f"Invalid backend: {self.backend}. Allowed values are: {executors.keys()}"
             )
 
+    def reset_processor(self):
         # Select processor method
         self.method = self.config.get('processor.method')
         if self.method in processors:
@@ -61,7 +67,6 @@ class Benchmark:
             raise NotImplementedError(
                 f"Invalid method: {self.method}. Allowed values are: {processors.keys()}"
             )
-
 
     @tp.profile
     @tp.enable

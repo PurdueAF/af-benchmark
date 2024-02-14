@@ -13,17 +13,14 @@ class BaseProcessor(ABC):
         self.config=config
         self.col_stats=pd.DataFrame()
 
-    @tp.enable
     @abstractmethod
     def open_nanoaod(self, file_path, **kwargs):
         return
 
-    @tp.enable
     @abstractmethod
     def read_columns(self, tree, **kwargs):
         return
 
-    @tp.enable
     @abstractmethod
     def run_operation(self, columns, **kwargs):
         return
@@ -73,9 +70,6 @@ class UprootProcessor(BaseProcessor):
             self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
         return column_data
 
-    def read_n_columns(self, tree, **kwargs):
-        icol = 0
-        
 
     @tp.enable
     def run_operation(self, columns, **kwargs):
@@ -85,13 +79,17 @@ class UprootProcessor(BaseProcessor):
             if operation == 'array':
                 # just load it in memory
                 data.array()
-            if operation == 'mean':        
+            elif operation == 'mean':        
                 results[name] = np.mean(data.array())
+            elif operation == 'sum':        
+                results[name] = np.sum(data.array())
         return results
 
 
 
 class NanoEventsProcessor(BaseProcessor):
+
+    @tp.enable
     def open_nanoaod(self, file_path, **kwargs):
         tree = NanoEventsFactory.from_root(
             file_path,
@@ -100,6 +98,7 @@ class NanoEventsProcessor(BaseProcessor):
         ).events()
         return tree
 
+    @tp.enable
     def read_columns(self, tree, **kwargs):
         columns_to_read = self.config.get('processor.columns')
         if not isinstance(columns_to_read, list):
@@ -115,6 +114,7 @@ class NanoEventsProcessor(BaseProcessor):
                 raise ValueError(f"Error reading column: {column}")
         return column_data
 
+    @tp.enable
     def run_operation(self, columns, **kwargs):
         operation = self.config.get('processor.operation')
         results = {}

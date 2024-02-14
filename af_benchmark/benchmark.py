@@ -37,13 +37,16 @@ class Benchmark:
     def __init__(self, config_path=None):
         self.report_df = pd.DataFrame()
         if config_path:
-            self.reinitialize(config_path)
+            self.reload_config(config_path)
 
-    def reinitialize(self, config_path):
+    def reload_config(self, config_path):
         self.config = read_yaml(config_path)
+        self.reset()
+
+    def reset(self):
         self.reset_profiler()
         self.reset_executor()
-        self.reset_processor()
+        self.reset_processor()        
 
     def reset_profiler(self):
         tp.reset()

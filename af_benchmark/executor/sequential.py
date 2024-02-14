@@ -1,5 +1,4 @@
 from executor.base import BaseExecutor
-import tqdm
 
 
 class SequentialExecutor(BaseExecutor):
@@ -13,7 +12,7 @@ class SequentialExecutor(BaseExecutor):
         
         :meta public:
         """
-        return [func(arg, **kwargs) for arg in tqdm.tqdm(args)]
+        return [func(arg, **kwargs) for arg in args]
 
     def get_n_workers(self):
         return 1

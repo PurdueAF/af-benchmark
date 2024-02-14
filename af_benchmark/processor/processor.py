@@ -50,13 +50,15 @@ class UprootProcessor(BaseProcessor):
     def read_columns(self, tree, **kwargs):
         columns_to_read = self.config.get('processor.columns')
         if isinstance(columns_to_read, list):
-            if [c not in tree.keys() for c in columns_to_read].any():
+            if any(c not in tree.keys() for c in columns_to_read):
                 raise ValueError(f"Error reading column: {column}")
             column_names = columns_to_read
         elif isinstance(columns_to_read, int):
             column_names = list(tree.keys())[:columns_to_read]
             if len(column_names)<columns_to_read:
                 raise ValueError(f"Trying to read {columns_to_read} columns, but only {len(column_names)} present in file.")
+        else:
+            raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
 
         column_data = {}
         for column in column_names:

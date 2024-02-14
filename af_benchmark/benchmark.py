@@ -138,7 +138,8 @@ def run_benchmark(config_path):
     b = Benchmark()
     for config_file in configs:
         print(f"> Loading config from {config_file}")
-        b.reinitialize(config_file)
+        b.reset()
+        b.reload_config(config_file)
         b.run()
         b.update_report()
 

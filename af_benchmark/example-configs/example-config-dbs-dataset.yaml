@@ -1,0 +1,28 @@
+executor:
+  backend: sequential
+  # backend: futures
+  # backend: dask-local
+  # backend: dask-gateway
+data-access:
+  # mode: local
+  # files: 
+  #   - tests/data/nano_dimuon.root
+  # mode: local_dir
+  # files_dir: /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/
+  mode: dbs_dataset
+  dataset: /SingleMuon/Run2016B-02Apr2020_ver2-v1/NANOAOD
+processor:
+  method: uproot
+  # method: nanoevents
+  columns: 5
+    # - event
+    # - Muon_pt
+    # - Muon_eta
+  operation: sum
+  write: false
+measurements:
+  what:
+    - timing
+    - ram
+  report:
+    - print

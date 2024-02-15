@@ -11,7 +11,7 @@ def get_file_list(cls):
     elif mode == 'dbs_dataset':
         dbsdataset = cls.config.get('data-access.dataset', "")
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://"+file['logical_file_name'] for file in dbs.listFiles(dataset=dbsdataset)]
+        file_list = ["root://cms-xcache.rcac.purdue.edu/"+file['logical_file_name'] for file in dbs.listFiles(dataset=dbsdataset)]
     else:
         raise NotImplementedError(
             f"Data access modes other than 'local' and 'local_dir' are not yet implemented"

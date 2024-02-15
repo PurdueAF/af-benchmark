@@ -29,12 +29,20 @@ dbs3-client
 python3 -m pip --no-cache-dir install --upgrade -r requirements.txt
 conda install xrootd
 
-Run benchmarks:
+Run the benchmarks:
 --------------
+
+Over a single local file:
+
 spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-config.yaml
 [{'event': 2255000.5, 'Muon_pt': 46.13676846983951}]
 
+Over an entire dataset, via local XCache:
 spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-configs/example-config-dbs-dataset.yaml
+
+Over a single block from that dataset:
+spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-configs/example-config-dbs-block.yaml
+
 
 Cleanup:
 -------

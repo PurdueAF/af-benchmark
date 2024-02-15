@@ -10,8 +10,9 @@ module spider conda
 (select e.g. the latest available version)
 module load anaconda/2021.05-py38
 conda config --add channels conda-forge
-conda create --prefix /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks python=3.10
-conda activate /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks
+mkdir -p /tmp/spiperov/conda_envs/
+conda create --prefix /tmp/spiperov/conda_envs/test-af-benchmarks python=3.10
+conda activate /tmp/spiperov/conda_envs/test-af-benchmarks
 git clone https://github.com/PurdueAF/af-benchmark.git
 cd af-benchmark/
 vi requirements.txt
@@ -19,18 +20,24 @@ vi requirements.txt
 pyyaml
 scalpl
 coffea==0.7.21
+...
+pycurl
+certifi
+dbs3-client
 ---
 
-python3 -m pip install --upgrade -r requirements.txt
+python3 -m pip --no-cache-dir install --upgrade -r requirements.txt
 
 Run benchmarks:
 --------------
 spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-config.yaml
 [{'event': 2255000.5, 'Muon_pt': 46.13676846983951}]
 
+spiperov@cms-fe01:~/af-benchmark $ python3 af_benchmark/benchmark.py af_benchmark/example-configs/example-config-dbs-dataset.yaml
+
 Cleanup:
 -------
 source deactivate
-conda env remove --prefix /depot/cms/private/users/spiperov/conda_envs/test-af-benchmarks
+conda env remove --prefix /tmp/spiperov/conda_envs/test-af-benchmarks
 cd ../
 rm -rf af-benchmark/

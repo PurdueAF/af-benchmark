@@ -10,17 +10,18 @@ def get_file_list(cls):
         file_list = glob.glob(files_dir+"/*.root")
     elif mode == 'dbs_dataset':
         dbsdataset = cls.config.get('data-access.dataset', "")
+        xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://cms-xcache.rcac.purdue.edu/"+file['logical_file_name'] for file in dbs.listFiles(dataset=dbsdataset)]
+        file_list = ["root://"+xrootdserver+"/"+file['logical_file_name'] for file in dbs.listFiles(dataset=dbsdataset)]
     elif mode == 'dbs_block':
         dbsblock = cls.config.get('data-access.block', "")
+        xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://cms-xcache.rcac.purdue.edu/"+file['logical_file_name'] for file in dbs.listFiles(block_name=dbsblock)]
+        file_list = ["root://"+xrootdserver+"/"+file['logical_file_name'] for file in dbs.listFiles(block_name=dbsblock)]
     else:
         raise NotImplementedError(
             f"Data access modes other than 'local' and 'local_dir' are not yet implemented"
         )
 
     cls.n_files = len(file_list)
-    print(file_list)
     return file_list

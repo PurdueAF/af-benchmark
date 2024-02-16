@@ -1,0 +1,34 @@
+executor:
+  backend: sequential
+  # backend: futures
+  # backend: dask-local
+  # backend: dask-gateway
+data-access:
+  # mode: local
+  # files: 
+  #   - tests/data/nano_dimuon.root
+  # mode: local_dir
+  # files_dir: /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/
+  # mode: dbs_dataset
+  # dataset: /SingleMuon/Run2016B-02Apr2020_ver2-v1/NANOAOD
+  mode: dbs_block
+  xrootdserver: eos.cms.rcac.purdue.edu:1094
+#  xrootdserver: cms-xcache.rcac.purdue.edu:1094
+#  xrootdserver: cmsxrootd.hep.wisc.edu:1094
+  block: /SingleMuon/Run2017C-02Apr2020-v1/NANOAOD#44236284-ff8d-4b95-b971-dcec15b5130f        
+#  block: /SingleMuon/Run2016B-02Apr2020_ver2-v1/NANOAOD#48f20207-a79d-4b60-aee3-ef8a1a36a3e9
+processor:
+  method: uproot
+  # method: nanoevents
+  columns: 5
+    # - event
+    # - Muon_pt
+    # - Muon_eta
+  operation: sum
+  write: false
+measurements:
+  what:
+    - timing
+    - ram
+  report:
+    - print

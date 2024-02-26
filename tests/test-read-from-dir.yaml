@@ -1,0 +1,11 @@
+executor:
+  backend: futures
+data-access:
+  mode: local_dirs
+  directories: 
+    - tests/data/
+processor:
+  parallelize_over: columns
+  method: uproot
+  columns: 10
+  operation: sum

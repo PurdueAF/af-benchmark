@@ -9,4 +9,4 @@ processor:
   columns:
     - event
     - Muon_pt
-  operation: mean
+  operation: sum

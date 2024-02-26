@@ -1,5 +1,5 @@
 executor:
-  backend: dask-local
+  backend: sequential
 data-access:
   mode: local
   files: 
@@ -9,4 +9,4 @@ processor:
   columns:
     - event
     - Muon_pt
-  operation: mean
+  operation: sum

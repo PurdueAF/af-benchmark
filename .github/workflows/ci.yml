@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  uproot_sequential:
+  default:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,10 +20,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config Uproot + SequentialExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_sequential.yaml
+      - name: Default test
+        run: python3 af_benchmark/benchmark.py tests/test-default.yaml
 
-  uproot_futures:
+  nanoevents-processor:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -37,10 +37,27 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config Uproot + FuturesExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_futures.yaml
+      - name: Test NanoEvents processor
+        run: python3 af_benchmark/benchmark.py tests/test-nanoevents.yaml
 
-  uproot_dask_local:
+  read-from-dir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Test reading from local directory
+        run: pip install -r requirements.txt
+
+      - name: 
+        run: python3 af_benchmark/benchmark.py tests/test-read-from-dir.yaml
+
+  futures-executor:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -54,10 +71,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config Uproot + DaskLocalExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_uproot_dask_local.yaml
+      - name: Test futures executor
+        run: python3 af_benchmark/benchmark.py tests/test-futures.yaml
 
-  nanoevents_sequential:
+  dask-local-executor:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -71,10 +88,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config NanoEvents + SequentialExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_sequential.yaml
+      - name: Test Dask executor (local)
+        run: python3 af_benchmark/benchmark.py tests/test-dask-local.yaml
 
-  nanoevents_futures:
+  explicit-columns:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -88,10 +105,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config NanoEvents + FuturesExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_futures.yaml
+      - name: Test explicit list of columns
+        run: python3 af_benchmark/benchmark.py tests/test-explicit-columns.yaml
 
-  nanoevents_dask_local:
+  read-by-file:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -105,7 +122,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run test config NanoEvents + DaskLocalExecutor
-        run: python3 af_benchmark/benchmark.py tests/config_nanoevents_dask_local.yaml
+      - name: Test parallelization over files
+        run: python3 af_benchmark/benchmark.py tests/test-read-by-file.yaml
+
+  read-by-column:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Test parallelization over columns
+        run: python3 af_benchmark/benchmark.py tests/test-read-by-column.yaml
 
 

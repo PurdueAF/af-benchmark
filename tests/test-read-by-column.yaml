@@ -1,0 +1,10 @@
+executor:
+  backend: futures
+data-access:
+  mode: local
+  files: 
+    - tests/data/nano_dimuon.root
+processor:
+  method: uproot
+  columns: 10
+  operation: sum

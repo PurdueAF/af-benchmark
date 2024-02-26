@@ -5,9 +5,11 @@ def get_file_list(cls):
     mode = cls.config.get('data-access.mode', 'local')
     if mode == 'local':
         file_list = cls.config.get('data-access.files', [])
-    elif mode == 'local_dir':
-        files_dir = cls.config.get('data-access.files_dir', "")
-        file_list = glob.glob(files_dir+"/**/*.root", recursive = True)
+    elif mode == 'local_dirs':
+        dirs = cls.config.get('data-access.directories', [])
+        file_list = []
+        for dir in dirs:
+            file_list.extend(glob.glob(dir+"/**/*.root", recursive = True))
     elif mode == 'dbs_dataset':
         dbsdataset = cls.config.get('data-access.dataset', "")
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')

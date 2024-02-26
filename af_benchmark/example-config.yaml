@@ -11,6 +11,8 @@ data-access:
   # directories:
   #     - /home/dkondra/depot/users/dkondra/af-benchmark/tests/data/
 processor:
+  parallelize_over: files
+  # parallelize_over: columns
   method: uproot
   # method: nanoevents
   columns: 5
@@ -18,10 +20,3 @@ processor:
     # - Muon_pt
     # - Muon_eta
   operation: sum
-  write: false
-measurements:
-  what:
-    - timing
-    - ram
-  report:
-    - print

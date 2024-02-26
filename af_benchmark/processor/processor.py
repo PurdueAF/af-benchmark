@@ -18,7 +18,46 @@ class BaseProcessor(ABC):
         return
 
     @abstractmethod
-    def read_columns(self, tree, **kwargs):
+    def get_column_names(self, tree):
+        return
+
+    @tp.enable
+    def read_columns(self, trees, executor, parallelize_over):
+        column_names = self.get_column_names(trees[0])
+        if not parallelize_over:
+            parallelize_over = "files"
+        if parallelize_over=="files":
+            column_data = executor.execute(
+                self.read_by_file,
+                trees,
+                column_names=column_names
+            )
+        elif parallelize_over=="columns":
+            column_data = executor.execute(
+                self.read_by_column,
+                column_names,
+                trees=trees
+            )
+        else:
+            raise ValueError(f"Can't parallelize over {parallelize_over}")
+        return column_data     
+
+    def read_by_file(self, tree, **kwargs):
+        column_names = kwargs.get("column_names", [])
+        column_data = {}
+        for column_name in column_names:
+            column_data[column_name] = self.read_column(tree, column_name)
+        return column_data
+
+    def read_by_column(self, column_name, **kwargs):
+        trees = kwargs.get("trees", [])
+        column_data = []
+        for tree in trees:
+            column_data.append(self.read_column(tree, column_name))
+        return {column_name: column_data}
+
+    @abstractmethod
+    def read_column(self, tree, column):
         return
 
     @abstractmethod
@@ -44,7 +83,7 @@ class UprootProcessor(BaseProcessor):
         return tree
 
     @tp.enable
-    def read_columns(self, tree, **kwargs):
+    def get_column_names(self, tree):
         columns_to_read = self.config.get('processor.columns')
         if isinstance(columns_to_read, list):
             if any(c not in tree.keys() for c in columns_to_read):
@@ -56,33 +95,41 @@ class UprootProcessor(BaseProcessor):
                 raise ValueError(f"Trying to read {columns_to_read} columns, but only {len(column_names)} present in file.")
         else:
             raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
+        return column_names
 
-        column_data = {}
-        for column in column_names:
-            branch = tree[column]
-            column_data[column] = branch
-            col_stats = pd.DataFrame([{
-                "file": tree.file.file_path,
-                "column": column,
-                "compressed_bytes": branch.compressed_bytes,
-                "uncompressed_bytes": branch.uncompressed_bytes
-            }])
-            self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
+    @tp.enable
+    def read_column(self, tree, column_name):
+        column_data = tree[column_name]
+        col_stats = pd.DataFrame([{
+            "file": tree.file.file_path,
+            "column": column_name,
+            "compressed_bytes": column_data.compressed_bytes,
+            "uncompressed_bytes": column_data.uncompressed_bytes
+        }])
+        self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
         return column_data
-
 
     @tp.enable
     def run_operation(self, columns, **kwargs):
-        operation = self.config.get('processor.operation')
+        operation = self.config.get('processor.operation', None)
+        if not operation:
+            return
         results = {}
         for name, data in columns.items():
+            data_in_memory = np.array([])
+            if isinstance(data, list):
+                for item in data:
+                    data_in_memory = np.concatenate((data_in_memory, item.array()))
+            else:
+                data_in_memory = data.array()
+
             if operation == 'array':
                 # just load it in memory
-                data.array()
+                continue
             elif operation == 'mean':        
-                results[name] = np.mean(data.array())
+                results[name] = np.mean(data_in_memory)
             elif operation == 'sum':        
-                results[name] = np.sum(data.array())
+                results[name] = np.sum(data_in_memory)
         return results
 
 
@@ -99,19 +146,21 @@ class NanoEventsProcessor(BaseProcessor):
         return tree
 
     @tp.enable
-    def read_columns(self, tree, **kwargs):
-        columns_to_read = self.config.get('processor.columns')
-        if not isinstance(columns_to_read, list):
+    def get_column_names(self, tree):
+        column_names = self.config.get('processor.columns')
+        if not isinstance(column_names, list):
             raise NotImplementedError("For NanoEventsProcessor, only explicit list of columns is currently possible")
-        column_data = {}        
-        for column in columns_to_read:
-            if column in tree.fields:
-                column_data[column] = tree[column]
-            elif "_" in column:
-                branch, leaf = column.split("_")
-                column_data[column] = tree[branch][leaf]
-            else:
-                raise ValueError(f"Error reading column: {column}")
+        return column_names
+
+    @tp.enable
+    def read_column(self, tree, column_name):
+        if column_name in tree.fields:
+            column_data = tree[column_name]
+        elif "_" in column_name:
+            branch, leaf = column_name.split("_")
+            column_data = tree[branch][leaf]
+        else:
+            raise ValueError(f"Error reading column: {column_name}")
         return column_data
 
     @tp.enable

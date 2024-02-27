@@ -35,7 +35,10 @@ def read_yaml(file_path):
 
 class Benchmark:
     def __init__(self, config_path=None):
+        self.executor = None
+        self.processor = None
         self.report_df = pd.DataFrame()
+        self.col_stats = pd.DataFrame()
         if config_path:
             self.reload_config(config_path)
 
@@ -43,25 +46,37 @@ class Benchmark:
         self.config = read_yaml(config_path)
         self.reset()
 
-    def reset(self):
-        self.reset_profiler()
-        self.reset_executor()
-        self.reset_processor()        
+    def reset(self, **kwargs):
+        self.reset_profiler(**kwargs)
+        self.reset_executor(**kwargs)
+        self.reset_processor(**kwargs)
 
-    def reset_profiler(self):
+    def reset_profiler(self, **kwargs):
         tp.reset()
 
-    def reset_executor(self):
-        # Select executor backend
+    def reset_executor(self, **kwargs):
+        keep_cluster = kwargs.get("keep_cluster", False)
+        reset_workers = kwargs.get("reset_workers", True)
+
         self.backend = self.config.get('executor.backend')
-        if self.backend in executors:
-            self.executor = executors[self.backend]()
-        else:
+        if self.backend not in executors:
             raise NotImplementedError(
                 f"Invalid backend: {self.backend}. Allowed values are: {executors.keys()}"
             )
 
-    def reset_processor(self):
+        n_workers = self.config.get('executor.n_workers')
+        if n_workers is None:
+            n_workers = 1
+
+        if keep_cluster and hasattr(self.executor, "cluster"):
+            if reset_workers:
+                self.executor.wait_for_workers(0)
+            self.executor.wait_for_workers(n_workers)
+        else:
+            self.executor = executors[self.backend](n_workers=n_workers)
+
+
+    def reset_processor(self, **kwargs):
         # Select processor method
         self.method = self.config.get('processor.method')
         if self.method in processors:
@@ -85,7 +100,8 @@ class Benchmark:
 
         outputs_ = self.executor.execute(self.processor.run_operation, column_data)
 
-        self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
+        if outputs_:
+            self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
         
         outputs = [o[0] for o in outputs_]
 

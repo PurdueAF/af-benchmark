@@ -51,7 +51,11 @@ class BaseProcessor(ABC):
             column_data[column_name] = result["data"]
             if "stats" in result.keys():
                 column_stats.append(result["stats"])
-        return column_data, pd.concat(column_stats)
+        if column_stats:
+            col_stats_df = pd.concat(column_stats)
+        else:
+            col_stats_df = pd.DataFrame()
+        return column_data, col_stats_df
 
     def read_by_column(self, column_name, **kwargs):
         trees = kwargs.get("trees", [])
@@ -62,7 +66,11 @@ class BaseProcessor(ABC):
             column_data.append(result["data"])
             if "stats" in result.keys():
                 column_stats.append(result["stats"])
-        return {column_name: column_data}, pd.concat(column_stats)
+        if column_stats:
+            col_stats_df = pd.concat(column_stats)
+        else:
+            col_stats_df = pd.DataFrame()
+        return {column_name: column_data}, col_stats_df
 
     @abstractmethod
     def read_column(self, tree, column):

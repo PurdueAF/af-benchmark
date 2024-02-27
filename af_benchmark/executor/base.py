@@ -5,8 +5,11 @@ from abc import ABC, abstractmethod
 class BaseExecutor(ABC):
     """A base class for a benchmark executor
     """
+    
+    @abstractmethod
+    def __init__(**kwargs):
+        return
 
-    # @tp.enable
     def execute(self, func, args, **kwargs):
         """Executes a given function over a list or dict of arguments,
         and passes arbitrary keyword arguments to the function.
@@ -51,6 +54,19 @@ class BaseExecutor(ABC):
         """
 
         return
+
+    
+    def wait_for_workers(self, nworkers):
+        if not hasattr(self, "cluster"):
+            return
+        self.cluster.scale(nworkers)
+        while (
+            (self.cluster.status == "running") and 
+            (len(self.cluster.scheduler_info["workers"]) != nworkers)
+        ):
+            time.sleep(1.0)
+        return
+
 
     @abstractmethod
     def get_n_workers(self):

@@ -12,8 +12,12 @@ class BaseProcessor(ABC):
     def __init__(self, config):
         self.config=config
 
+    @tp.enable
+    def open_nanoaod(self, files, executor, **kwargs):
+        return executor.execute(self.open_nanoaod_, files, **kwargs)
+
     @abstractmethod
-    def open_nanoaod(self, file_path, **kwargs):
+    def open_nanoaod_(self, file_path, **kwargs):
         return
 
     @abstractmethod
@@ -77,7 +81,10 @@ class BaseProcessor(ABC):
         return
 
     @tp.enable
-    def run_operation(self, columns, **kwargs):
+    def run_operation(self, columns, executor, **kwargs):        
+        return executor.execute(self.execute_func, columns, **kwargs)
+
+    def execute_func(self, columns, **kwargs):
         if isinstance(columns, tuple):
             result = self.run_operation_(columns[0], **kwargs)
             col_stats = columns[1]
@@ -95,12 +102,10 @@ class UprootProcessor(BaseProcessor):
     def __init__(self, config):
         self.config = config
 
-    @tp.enable
-    def open_nanoaod(self, file_path, **kwargs):
+    def open_nanoaod_(self, file_path, **kwargs):
         tree = uproot.open(file_path)["Events"]
         return tree
 
-    @tp.enable
     def get_column_names(self, tree):
         columns_to_read = self.config.get('processor.columns')
         if isinstance(columns_to_read, list):
@@ -115,7 +120,6 @@ class UprootProcessor(BaseProcessor):
             raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
         return column_names
 
-    @tp.enable
     def read_column(self, tree, column_name):
         column_data = tree[column_name]
         col_stats = pd.DataFrame([{
@@ -152,8 +156,7 @@ class UprootProcessor(BaseProcessor):
 
 class NanoEventsProcessor(BaseProcessor):
 
-    @tp.enable
-    def open_nanoaod(self, file_path, **kwargs):
+    def open_nanoaod_(self, file_path, **kwargs):
         tree = NanoEventsFactory.from_root(
             file_path,
             schemaclass=NanoAODSchema.v6,
@@ -161,14 +164,12 @@ class NanoEventsProcessor(BaseProcessor):
         ).events()
         return tree
 
-    @tp.enable
     def get_column_names(self, tree):
         column_names = self.config.get('processor.columns')
         if not isinstance(column_names, list):
             raise NotImplementedError("For NanoEventsProcessor, only explicit list of columns is currently possible")
         return column_names
 
-    @tp.enable
     def read_column(self, tree, column_name):
         if column_name in tree.fields:
             column_data = tree[column_name]

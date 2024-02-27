@@ -90,7 +90,11 @@ class Benchmark:
     @tp.enable
     def run(self):
         files = get_file_list(self)
-        trees = self.executor.execute(self.processor.open_nanoaod, files)
+
+        trees = self.processor.open_nanoaod(
+            files,
+            self.executor
+        )
 
         column_data = self.processor.read_columns(
             trees,
@@ -98,7 +102,10 @@ class Benchmark:
             parallelize_over=self.config.get('processor.parallelize_over')
         )
 
-        outputs_ = self.executor.execute(self.processor.run_operation, column_data)
+        outputs_ = self.processor.run_operation(
+            column_data,
+            self.executor
+        )
 
         if outputs_:
             self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)

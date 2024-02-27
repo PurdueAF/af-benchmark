@@ -7,7 +7,7 @@ class BaseExecutor(ABC):
     """
     
     @abstractmethod
-    def __init__(**kwargs):
+    def __init__(self, **kwargs):
         return
 
     def execute(self, func, args, **kwargs):

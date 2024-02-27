@@ -90,14 +90,10 @@ class Benchmark:
     @tp.enable
     def run(self):
         files = get_file_list(self)
-
-        trees = self.processor.open_nanoaod(
-            files,
-            self.executor
-        )
+        self.processor.get_column_list(files[0])
 
         column_data = self.processor.read_columns(
-            trees,
+            files,
             self.executor,
             parallelize_over=self.config.get('processor.parallelize_over')
         )

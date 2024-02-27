@@ -83,7 +83,11 @@ class Benchmark:
             parallelize_over=self.config.get('processor.parallelize_over')
         )
 
-        outputs = self.executor.execute(self.processor.run_operation, column_data)
+        outputs_ = self.executor.execute(self.processor.run_operation, column_data)
+
+        self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
+        
+        outputs = [o[0] for o in outputs_]
 
         return outputs
 
@@ -102,7 +106,7 @@ class Benchmark:
         }
 
         # Add column size measurements
-        col_stats = self.processor.col_stats
+        col_stats = self.col_stats
         if "compressed_bytes" in col_stats.columns:
             report.update({
                 "compressed_bytes": col_stats.compressed_bytes.sum()

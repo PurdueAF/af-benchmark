@@ -11,7 +11,6 @@ class BaseProcessor(ABC):
     """
     def __init__(self, config):
         self.config=config
-        self.col_stats=pd.DataFrame()
 
     @abstractmethod
     def open_nanoaod(self, file_path, **kwargs):
@@ -40,42 +39,53 @@ class BaseProcessor(ABC):
             )
         else:
             raise ValueError(f"Can't parallelize over {parallelize_over}")
+
         return column_data     
 
     def read_by_file(self, tree, **kwargs):
         column_names = kwargs.get("column_names", [])
         column_data = {}
+        column_stats = []
         for column_name in column_names:
-            column_data[column_name] = self.read_column(tree, column_name)
-        return column_data
+            result = self.read_column(tree, column_name)
+            column_data[column_name] = result["data"]
+            if "stats" in result.keys():
+                column_stats.append(result["stats"])
+        return column_data, pd.concat(column_stats)
 
     def read_by_column(self, column_name, **kwargs):
         trees = kwargs.get("trees", [])
         column_data = []
+        column_stats = []
         for tree in trees:
-            column_data.append(self.read_column(tree, column_name))
-        return {column_name: column_data}
+            result = self.read_column(tree, column_name)
+            column_data.append(result["data"])
+            if "stats" in result.keys():
+                column_stats.append(result["stats"])
+        return {column_name: column_data}, pd.concat(column_stats)
 
     @abstractmethod
     def read_column(self, tree, column):
         return
 
-    @abstractmethod
+    @tp.enable
     def run_operation(self, columns, **kwargs):
+        if isinstance(columns, tuple):
+            result = self.run_operation_(columns[0], **kwargs)
+            col_stats = columns[1]
+        else:
+            result = self.run_operation(columns, **kwargs)
+            col_stats = None
+        return result, col_stats
+
+    @abstractmethod
+    def run_operation_(self, columns, **kwargs):
         return
 
 
 class UprootProcessor(BaseProcessor):
     def __init__(self, config):
         self.config = config
-        self.col_stats = pd.DataFrame(
-            columns = [
-                "file",
-                "column",
-                "compressed_bytes",
-                "uncompressed_bytes"
-            ]
-        )
 
     @tp.enable
     def open_nanoaod(self, file_path, **kwargs):
@@ -106,11 +116,9 @@ class UprootProcessor(BaseProcessor):
             "compressed_bytes": column_data.compressed_bytes,
             "uncompressed_bytes": column_data.uncompressed_bytes
         }])
-        self.col_stats = pd.concat([self.col_stats, col_stats]).reset_index(drop=True)
-        return column_data
+        return {"data": column_data, "stats": col_stats}
 
-    @tp.enable
-    def run_operation(self, columns, **kwargs):
+    def run_operation_(self, columns, **kwargs):
         operation = self.config.get('processor.operation', None)
         if not operation:
             return
@@ -161,10 +169,9 @@ class NanoEventsProcessor(BaseProcessor):
             column_data = tree[branch][leaf]
         else:
             raise ValueError(f"Error reading column: {column_name}")
-        return column_data
+        return {"data": column_data}
 
-    @tp.enable
-    def run_operation(self, columns, **kwargs):
+    def run_operation_(self, columns, **kwargs):
         operation = self.config.get('processor.operation')
         results = {}
         for name, data in columns.items():

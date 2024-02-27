@@ -43,7 +43,9 @@ class DaskLocalExecutor(BaseExecutor):
         
         :meta public:
         """
-        args_sc = self.client.scatter(args)
+        #scattering is not working well
+        #args_sc = self.client.scatter(args)
+        args_sc = args
         futures = [self.client.submit(func, arg, **kwargs) for arg in args_sc]
         results = self.client.gather(futures)
         results = list(results)
@@ -74,7 +76,7 @@ class DaskGatewayExecutor(BaseExecutor):
 
         clusters = self.gateway.list_clusters()
         if len(clusters)==0:
-            raise Error("No Dask Gateway clusters found")
+            raise Exception("No Dask Gateway clusters found")
 
         first_cluster_name = clusters[0].name
         if len(clusters)>1:
@@ -88,7 +90,9 @@ class DaskGatewayExecutor(BaseExecutor):
         
         :meta public:
         """
-        args_sc = self.client.scatter(args)
+        #scattering is not working well
+        #args_sc = self.client.scatter(args)
+        args_sc = args
         futures = [self.client.submit(func, arg, **kwargs) for arg in args_sc]
         results = self.client.gather(futures)
         results = list(results)

@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
-# from profiling.timing import time_profiler as tp
-
+import time
 
 class BaseExecutor(ABC):
     """A base class for a benchmark executor
     """
     
-    @abstractmethod
     def __init__(self, **kwargs):
         return
 

@@ -12,7 +12,12 @@ class SequentialExecutor(BaseExecutor):
         
         :meta public:
         """
+        first = [func(arg, **kwargs) for arg in args]
         return [func(arg, **kwargs) for arg in args]
+
+        print(first)
+        second=2
+        print(second)
 
     def get_n_workers(self):
         return 1

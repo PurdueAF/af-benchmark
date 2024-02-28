@@ -20,6 +20,11 @@ def get_file_list(cls):
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
         file_list = ["root://"+xrootdserver+"/"+file['logical_file_name'] for file in dbs.listFiles(block_name=dbsblock)]
+    elif mode == 'dbs_file':
+        dbsfile = cls.config.get('data-access.file', "")
+        xrootdserver = cls.config.get('data-access.xrootdserver', 'cms-xcache.rcac.purdue.edu:1094')
+        dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
+        file_list = ["root://"+xrootdserver+"/"+dbsfile]
     else:
         raise NotImplementedError(
             f"Data access modes other than 'local' and 'local_dir' are not yet implemented"

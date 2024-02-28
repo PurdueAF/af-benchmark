@@ -1,0 +1,15 @@
+executor:
+  # backend: dask-gateway
+  backend: dask-local
+  # backend: sequential
+  n_workers: 4
+data-access:
+  mode: local
+  files: 
+    # - root://eos.cms.rcac.purdue.edu//store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/90322FC2-4027-0E47-92E4-22307EC8EAD2.root
+    - /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/90322FC2-4027-0E47-92E4-22307EC8EAD2.root
+
+processor:
+  parallelize_over: columns
+  columns: 10
+  operation: load_into_memory

@@ -17,7 +17,7 @@ class UprootProcessor:
         if isinstance(columns_to_read, list):
             if any(c not in tree.keys() for c in columns_to_read):
                 raise ValueError(f"Error reading column: {column}")
-            self.column = columns_to_read
+            self.columns = columns_to_read
         elif isinstance(columns_to_read, int):
             self.columns = list(tree.keys())[:columns_to_read]
             if len(self.columns)<columns_to_read:

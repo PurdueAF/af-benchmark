@@ -32,10 +32,7 @@ This benchmark is designed for generic but comprehensive performance tests of th
   * Parallelized via ``Dask`` using local cluster
   * Parallelized via ``Dask`` using Gateway cluster
 
-* Multiple methods of loading and reading columns from NanoAOD ROOT files:
-
-  * ``uproot``
-  * ``coffea.nanoevents``
+* Loading and reading columns from NanoAOD ROOT files is done using ``uproot``.
 
 * Generic operations applied to data in columns:
 

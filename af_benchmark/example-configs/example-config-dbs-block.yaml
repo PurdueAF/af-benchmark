@@ -8,6 +8,5 @@ data-access:
   block: /SingleMuon/Run2017C-02Apr2020-v1/NANOAOD#44236284-ff8d-4b95-b971-dcec15b5130f        
 processor:
   parallelize_over: files
-  method: uproot
   columns: 5
   operation: sum

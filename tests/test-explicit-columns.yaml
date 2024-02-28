@@ -5,7 +5,7 @@ data-access:
   files: 
     - tests/data/nano_dimuon.root
 processor:
-  method: uproot
+  parallelize_over: files
   columns:
     - event
     - Muon_pt

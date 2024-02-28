@@ -6,6 +6,5 @@ data-access:
       - /eos/purdue/store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/
 processor:
   parallelize_over: files
-  method: uproot
   columns: 5
   operation: sum

@@ -13,8 +13,6 @@ data-access:
 processor:
   parallelize_over: files
   # parallelize_over: columns
-  method: uproot
-  # method: nanoevents
   columns: 5
     # - event
     # - Muon_pt

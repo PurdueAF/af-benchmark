@@ -5,7 +5,6 @@ data-access:
   files: 
     - tests/data/nano_dimuon.root
 processor:
-  parallelize_over: columns
-  method: uproot
+  parallelize_over: files
   columns: 10
   operation: sum

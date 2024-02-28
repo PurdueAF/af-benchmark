@@ -7,6 +7,5 @@ data-access:
   dataset: /SingleMuon/Run2016B-02Apr2020_ver2-v1/NANOAOD
 processor:
   parallelize_over: files
-  method: uproot
   columns: 5
   operation: sum

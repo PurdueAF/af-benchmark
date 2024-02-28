@@ -6,7 +6,7 @@ import pandas as pd
 
 from profiling.timing import time_profiler as tp
 from data_access.loader import get_file_list
-from processor.processor import processors
+from processor.uproot_processor import UprootProcessor
 
 from executor.sequential import SequentialExecutor
 from executor.futures import FuturesExecutor
@@ -77,14 +77,7 @@ class Benchmark:
 
 
     def reset_processor(self, **kwargs):
-        # Select processor method
-        self.method = self.config.get('processor.method')
-        if self.method in processors:
-            self.processor = processors[self.method](self.config)
-        else:
-            raise NotImplementedError(
-                f"Invalid method: {self.method}. Allowed values are: {processors.keys()}"
-            )
+        self.processor = UprootProcessor(self.config)
 
     @tp.profile
     @tp.enable
@@ -118,7 +111,6 @@ class Benchmark:
         report = {
             "n_files": self.n_files,
             "n_columns_read": n_cols_read,
-            "processor": self.method,
             "operation": self.config.get('processor.operation'),
             "executor": self.backend,
             "n_workers": self.executor.get_n_workers(),

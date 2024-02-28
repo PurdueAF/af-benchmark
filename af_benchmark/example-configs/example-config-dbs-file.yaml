@@ -1,0 +1,12 @@
+executor:
+  backend: sequential
+data-access:
+  mode: dbs_file
+#  xrootdserver: eos.cms.rcac.purdue.edu:1094
+  xrootdserver: cms-xcache.rcac.purdue.edu:1094
+#  xrootdserver: cmsxrootd.hep.wisc.edu:1094
+  file: /store/data/Run2016B/SingleMuon/NANOAOD/02Apr2020_ver2-v1/20000/90322FC2-4027-0E47-92E4-22307EC8EAD2.root       
+processor:
+  parallelize_over: files
+  columns: 5
+  operation: sum

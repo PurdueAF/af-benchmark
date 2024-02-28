@@ -85,23 +85,24 @@ class Benchmark:
         files = get_file_list(self)
         self.processor.get_column_list(files[0])
 
-        column_data = self.processor.read_columns(
+        self.col_stats = self.processor.process_columns(
             files,
             self.executor,
-            parallelize_over=self.config.get('processor.parallelize_over')
+            parallelize_over=self.config.get('processor.parallelize_over'),
+            load_into_memory=True
         )
 
-        outputs_ = self.processor.run_operation(
-            column_data,
-            self.executor
-        )
+        # outputs_ = self.processor.run_operation(
+        #     column_data,
+        #     self.executor
+        # )
 
-        if outputs_:
-            self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
+        # if outputs_:
+        #     self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
         
-        outputs = [o[0] for o in outputs_]
+        # outputs = [o[0] for o in outputs_]
 
-        return outputs
+        # return outputs_
 
     def update_report(self):
         n_cols_read = self.config.get('processor.columns')
@@ -111,21 +112,13 @@ class Benchmark:
         report = {
             "n_files": self.n_files,
             "n_columns_read": n_cols_read,
+            "n_events": self.col_stats.nevents.sum(),
             "operation": self.config.get('processor.operation'),
             "executor": self.backend,
             "n_workers": self.executor.get_n_workers(),
+            "compressed_bytes": self.col_stats.compressed_bytes.sum(),
+            "uncompressed_bytes": self.col_stats.uncompressed_bytes.sum(),
         }
-
-        # Add column size measurements
-        col_stats = self.col_stats
-        if "compressed_bytes" in col_stats.columns:
-            report.update({
-                "compressed_bytes": col_stats.compressed_bytes.sum()
-            })
-        if "uncompressed_bytes" in col_stats.columns:
-            report.update({
-                "uncompressed_bytes": col_stats.uncompressed_bytes.sum()
-            })
 
         # Add timing measurements
         report.update(

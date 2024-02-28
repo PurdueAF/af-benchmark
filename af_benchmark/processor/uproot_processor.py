@@ -25,8 +25,10 @@ class UprootProcessor:
         else:
             raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
 
+
     @tp.enable
-    def read_columns(self, files, executor, parallelize_over):
+    def process_columns(self, files, executor, **kwargs):
+        parallelize_over = kwargs.get("parallelize_over")
         arg_dict = {
             "files": files,
             "columns": self.columns
@@ -38,73 +40,56 @@ class UprootProcessor:
         else:
             args = [{"files": [file], "columns": [col]} for file in files for col in self.columns]
 
-        column_data = executor.execute(self.read_columns_func, args)
+        col_stats = executor.execute(self.process_columns_func, args, **kwargs)
 
-        return column_data     
+        return pd.concat(col_stats).reset_index(drop=True)  
 
-    def read_columns_func(self, args):
-        column_data = []
+
+    def process_columns_func(self, args, **kwargs):
         column_stats = []
+        col_stats_df = pd.DataFrame()
         files = args["files"]
         columns = args["columns"]
         for file in files:
-            file_column_data = {}
             for column in columns:
-                result = self.read_column(file, column)
-                file_column_data[column] = result["data"]
-                if "stats" in result.keys():
-                    column_stats.append(result["stats"])
-            column_data.append(file_column_data)
-        col_stats_df = pd.DataFrame()
-        if column_stats:
-            col_stats_df = pd.concat(column_stats)
-        return column_data, col_stats_df
-    
-    def read_column(self, file, column):
+                col_stats = self.process_column(file, column, **kwargs)
+                col_stats_df = pd.concat([col_stats_df, col_stats])
+        return col_stats_df
+
+
+    def process_column(self, file, column, **kwargs):
         tree = self.open_nanoaod(file)
         column_data = tree[column]
         col_stats = pd.DataFrame([{
             "file": tree.file.file_path,
             "column": column,
             "compressed_bytes": column_data.compressed_bytes,
-            "uncompressed_bytes": column_data.uncompressed_bytes
+            "uncompressed_bytes": column_data.uncompressed_bytes,
+            "nevents": tree.num_entries
         }])
-        return {"data": column_data, "stats": col_stats}
+        self.run_operation(column_data)
+        return col_stats
 
-    @tp.enable
-    def run_operation(self, columns, executor, **kwargs):        
-        return executor.execute(self.run_operation_func, columns, **kwargs)
 
-    def run_operation_func(self, columns, **kwargs):
-        if isinstance(columns, tuple):
-            result = self.run_operation_(columns[0], **kwargs)
-            col_stats = columns[1]
-        else:
-            result = self.run_operation(columns, **kwargs)
-            col_stats = None
-        return result, col_stats
-
-    def run_operation_(self, column_data, **kwargs):
+    def run_operation(self, column_data, **kwargs):
         operation = self.config.get('processor.operation', None)
+
         if not operation:
             return
-        results = {}
-        for file_column_data in column_data:
-            for data in file_column_data.values():
-                data_in_memory = np.array([])
-                if isinstance(data, list):
-                    for item in data:
-                        data_in_memory = np.concatenate((data_in_memory, item.array()))
-                else:
-                    data_in_memory = data.array()
-    
-                if operation == 'array':
-                    # just load it in memory
-                    continue
-                elif operation == 'mean':        
-                    np.mean(data_in_memory)
-                elif operation == 'sum':        
-                    np.sum(data_in_memory)
-        return results
+
+        data_in_memory = np.array([])
+        if isinstance(column_data, list):
+            for item in column_data:
+                data_in_memory = np.concatenate((data_in_memory, item.array()))
+        else:
+            data_in_memory = column_data.array()
+
+        if operation == 'load_into_memory':
+            return
+        elif operation == 'mean':        
+            np.mean(data_in_memory)
+        elif operation == 'sum':        
+            np.sum(data_in_memory)
+
 
         

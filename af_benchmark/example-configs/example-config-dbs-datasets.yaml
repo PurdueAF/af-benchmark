@@ -1,7 +1,7 @@
 executor:
   backend: futures
 data-access:
-  mode: dbs-dataset
+  mode: dbs-datasets
 #  xrootdserver: eos.cms.rcac.purdue.edu:1094
   xrootdserver: cms-xcache.rcac.purdue.edu:1094
   datasets:

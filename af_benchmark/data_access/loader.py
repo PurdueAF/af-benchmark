@@ -11,7 +11,7 @@ def get_file_list(cls):
         file_list = []
         for dir in dirs:
             file_list.extend(glob.glob(dir+"/**/*.root", recursive = True))
-    elif mode == 'dbs-dataset':
+    elif mode == 'dbs-datasets':
         dbsdatasets = cls.config.get('data-access.datasets', [])
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
@@ -20,7 +20,7 @@ def get_file_list(cls):
                 for dataset in dbsdatasets
                 for file in dbs.listFiles(dataset=dataset)
         ]
-    elif mode == 'dbs-block':
+    elif mode == 'dbs-blocks':
         dbsblocks = cls.config.get('data-access.blocks', [])
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')

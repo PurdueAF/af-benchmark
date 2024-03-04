@@ -1,5 +1,6 @@
 import glob
 from dbs.apis.dbsClient import DbsApi
+# for full list of DBS APIs: https://twiki.cern.ch/twiki/bin/viewauth/CMS/DBS3APIInstructions
 
 def get_file_list(cls):
     mode = cls.config.get('data-access.mode', 'local')

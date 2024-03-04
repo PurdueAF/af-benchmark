@@ -12,7 +12,7 @@ class UprootProcessor:
         return tree
 
     def get_column_list(self, file):
-        columns_to_read = self.config.get('processor.columns')
+        columns_to_read = self.config.get('processor.columns', [])
         tree = self.open_nanoaod(file)
         if isinstance(columns_to_read, list):
             if any(c not in tree.keys() for c in columns_to_read):
@@ -28,7 +28,7 @@ class UprootProcessor:
 
     @tp.enable
     def process_columns(self, files, executor, **kwargs):
-        parallelize_over = kwargs.get("parallelize_over")
+        parallelize_over = kwargs.get("parallelize_over", 'files')
         arg_dict = {
             "files": files,
             "columns": self.columns
@@ -72,7 +72,7 @@ class UprootProcessor:
 
 
     def run_operation(self, column_data, **kwargs):
-        operation = self.config.get('processor.operation', None)
+        operation = self.config.get('processor.operation', 'nothing')
 
         if (not operation) or (operation=='nothing'):
             return

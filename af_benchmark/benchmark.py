@@ -58,15 +58,13 @@ class Benchmark:
         keep_cluster = kwargs.get("keep_cluster", False)
         reset_workers = kwargs.get("reset_workers", True)
 
-        self.backend = self.config.get('executor.backend')
+        self.backend = self.config.get('executor.backend', 'sequential')
         if self.backend not in executors:
             raise NotImplementedError(
                 f"Invalid backend: {self.backend}. Allowed values are: {executors.keys()}"
             )
 
-        n_workers = self.config.get('executor.n_workers')
-        if n_workers is None:
-            n_workers = 1
+        n_workers = self.config.get('executor.n_workers', 1)
 
         if keep_cluster and hasattr(self.executor, "cluster"):
             if reset_workers:
@@ -88,24 +86,13 @@ class Benchmark:
         self.col_stats = self.processor.process_columns(
             files,
             self.executor,
-            parallelize_over=self.config.get('processor.parallelize_over'),
+            parallelize_over=self.config.get('processor.parallelize_over', 'files'),
             load_into_memory=True
         )
 
-        # outputs_ = self.processor.run_operation(
-        #     column_data,
-        #     self.executor
-        # )
-
-        # if outputs_:
-        #     self.col_stats = pd.concat([o[1] for o in outputs_]).reset_index(drop=True)
-        
-        # outputs = [o[0] for o in outputs_]
-
-        # return outputs_
 
     def update_report(self):
-        n_cols_read = self.config.get('processor.columns')
+        n_cols_read = self.config.get('processor.columns', [])
         if isinstance(n_cols_read, list):
             n_cols_read = len(n_cols_read)
         
@@ -113,7 +100,7 @@ class Benchmark:
             "n_files": self.n_files,
             "n_columns_read": n_cols_read,
             "n_events": self.col_stats.nevents.sum(),
-            "operation": self.config.get('processor.operation'),
+            "operation": self.config.get('processor.operation', 'nothing'),
             "executor": self.backend,
             "n_workers": self.executor.get_n_workers(),
             "compressed_bytes": self.col_stats.compressed_bytes.sum(),

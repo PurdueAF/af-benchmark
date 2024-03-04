@@ -4,7 +4,7 @@ executor:
   # backend: dask-local
   # backend: dask-gateway
 data-access:
-  mode: local
+  mode: explicit-files
   files: 
     - tests/data/nano_dimuon.root
   # mode: local_dirs

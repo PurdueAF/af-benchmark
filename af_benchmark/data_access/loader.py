@@ -4,31 +4,39 @@ from dbs.apis.dbsClient import DbsApi
 
 def get_file_list(cls):
     mode = cls.config.get('data-access.mode', 'local')
-    if mode == 'local':
+    if mode == 'explicit-files':
         file_list = cls.config.get('data-access.files', [])
-    elif mode == 'local_dirs':
+    elif mode == 'explicit-dirs':
         dirs = cls.config.get('data-access.directories', [])
         file_list = []
         for dir in dirs:
             file_list.extend(glob.glob(dir+"/**/*.root", recursive = True))
-    elif mode == 'dbs_dataset':
-        dbsdataset = cls.config.get('data-access.dataset', "")
+    elif mode == 'dbs-dataset':
+        dbsdatasets = cls.config.get('data-access.datasets', [])
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://"+xrootdserver+"/"+file['logical_file_name'] for file in dbs.listFiles(dataset=dbsdataset)]
-    elif mode == 'dbs_block':
-        dbsblock = cls.config.get('data-access.block', "")
+        file_list = [
+            "root://"+xrootdserver+"/"+file['logical_file_name']
+                for dataset in dbsdatasets
+                for file in dbs.listFiles(dataset=dataset)
+        ]
+    elif mode == 'dbs-block':
+        dbsblocks = cls.config.get('data-access.blocks', [])
         xrootdserver = cls.config.get('data-access.xrootdserver', 'eos.cms.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://"+xrootdserver+"/"+file['logical_file_name'] for file in dbs.listFiles(block_name=dbsblock)]
-    elif mode == 'dbs_file':
-        dbsfile = cls.config.get('data-access.file', "")
+        file_list = [
+            "root://"+xrootdserver+"/"+file['logical_file_name']
+                for block in dbsblocks
+                for file in dbs.listFiles(block_name=block)
+        ]
+    elif mode == 'dbs-files':
+        dbsfiles = cls.config.get('data-access.files', [])
         xrootdserver = cls.config.get('data-access.xrootdserver', 'cms-xcache.rcac.purdue.edu:1094')
         dbs = DbsApi('https://cmsweb.cern.ch/dbs/prod/global/DBSReader')
-        file_list = ["root://"+xrootdserver+"/"+dbsfile]
+        file_list = ["root://"+xrootdserver+"/"+file for file in dbsfiles]
     else:
         raise NotImplementedError(
-            f"Data access modes other than 'local' and 'local_dir' are not yet implemented"
+            f"Data access mode {mode} not implemented"
         )
 
     cls.n_files = len(file_list)

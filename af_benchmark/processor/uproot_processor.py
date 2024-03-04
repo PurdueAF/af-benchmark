@@ -74,7 +74,7 @@ class UprootProcessor:
     def run_operation(self, column_data, **kwargs):
         operation = self.config.get('processor.operation', None)
 
-        if not operation:
+        if (not operation) or (operation=='nothing'):
             return
 
         data_in_memory = np.array([])

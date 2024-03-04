@@ -1,7 +1,7 @@
 executor:
   backend: dask-local
 data-access:
-  mode: local
+  mode: explicit-files
   files: 
     - tests/data/nano_dimuon.root
 processor:

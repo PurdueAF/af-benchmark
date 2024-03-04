@@ -1,7 +1,7 @@
 executor:
   backend: futures
 data-access:
-  mode: local_dirs
+  mode: explicit-dirs
   directories: 
     - tests/data/
 processor:

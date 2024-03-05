@@ -4,13 +4,13 @@ import scalpl
 import glob
 import pandas as pd
 
-from profiling.timing import time_profiler as tp
-from data_access.loader import get_file_list
-from processor.uproot_processor import UprootProcessor
+from time_profiler import time_profiler as tp
+from data_loader import get_file_list
+from uproot_processor import UprootProcessor
 
-from executor.sequential import SequentialExecutor
-from executor.futures import FuturesExecutor
-from executor.dask import DaskLocalExecutor, DaskGatewayExecutor
+from executors.sequential import SequentialExecutor
+from executors.futures import FuturesExecutor
+from executors.dask import DaskLocalExecutor, DaskGatewayExecutor
 executors = {
     'sequential': SequentialExecutor,
     'futures': FuturesExecutor,
@@ -23,14 +23,12 @@ executors = {
 def read_yaml(file_path):
     try:
         with open(file_path, 'r') as file:
-            config = yaml.safe_load(file)
-            # this allows dotted notation while parsing config
-            config = scalpl.Cut(config)
+            config = scalpl.Cut(yaml.safe_load(file))
             return config
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Config file not found at path: {file_path}")
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Config file not found at path: {file_path}") from e
     except yaml.YAMLError as e:
-        raise ValueError(f"YAML error: {e}")
+        raise ValueError(f"YAML error: {e}") from e
 
 
 class Benchmark:
@@ -39,7 +37,10 @@ class Benchmark:
         self.processor = None
         self.report_df = pd.DataFrame()
         self.col_stats = pd.DataFrame()
-        self.label = None # arbitrary label
+        
+        # arbitrary label for interpreting outputs
+        self.label = None 
+
         if config_path:
             self.reload_config(config_path)
 
@@ -68,8 +69,7 @@ class Benchmark:
         n_workers = self.config.get('executor.n_workers', 1)
 
         if keep_cluster and hasattr(self.executor, "cluster"):
-            if reset_workers:
-                self.executor.wait_for_workers(0)
+            self.executor.wait_for_workers(0) if reset_workers else None
             self.executor.wait_for_workers(n_workers)
         else:
             self.executor = executors[self.backend](n_workers=n_workers)
@@ -91,16 +91,11 @@ class Benchmark:
             load_into_memory=True
         )
 
-
-    def update_report(self):
-        n_cols_read = self.config.get('processor.columns', [])
-        if isinstance(n_cols_read, list):
-            n_cols_read = len(n_cols_read)
-        
+    def update_report(self):        
         report = {
             "label": self.label,
             "n_files": self.n_files,
-            "n_columns_read": n_cols_read,
+            "n_columns_read": len(self.processor.columns),
             "n_events": self.col_stats.nevents.sum(),
             "operation": self.config.get('processor.operation', 'nothing'),
             "executor": self.backend,
@@ -116,6 +111,7 @@ class Benchmark:
             )
         )
 
+        # Add measurements to common DataFrame
         self.report_df = pd.concat([
             self.report_df,
             pd.DataFrame([report])
@@ -123,7 +119,7 @@ class Benchmark:
 
 
 def run_benchmark(config_path):
-    
+    # Read config from YAML or a directory with multiple YAMLs
     if config_path.endswith(".yaml") or config_path.endswith(".yml"):
         configs = [config_path]
     else:

@@ -53,14 +53,18 @@ class TimeProfiler:
                 func_file_short = "/".join(func_file.split("/")[-3:])
     
                 # If by accident there are multiple results - save all
-                for ft in func_time:
-                    df = pd.DataFrame([{
-                        'func_file': func_file_short,
-                        'func_ln': func_ln,
-                        'func_name': func_name,
-                        'func_time': ft,
-                    }])
-                    self.report_df = pd.concat([self.report_df, df]).reset_index(drop=True)
+                self.report_df = pd.concat([
+                    self.report_df,
+                    pd.DataFrame([
+                        {
+                            'func_file': func_file_short,
+                            'func_ln': func_ln,
+                            'func_name': func_name,
+                            'func_time': ft
+                        } for ft in func_time
+                    ])
+                ]).reset_index(drop=True)
+
             return result
         return wrapper
 

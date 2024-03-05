@@ -1,4 +1,4 @@
-from executor.base import BaseExecutor
+from executors.base import BaseExecutor
 from concurrent import futures
 
 class FuturesExecutor(BaseExecutor):

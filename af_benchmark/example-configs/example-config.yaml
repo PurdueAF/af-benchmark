@@ -1,20 +1,11 @@
-executor:
-  backend: sequential
-  # backend: futures
-  # backend: dask-local
-  # backend: dask-gateway
 data-access:
   mode: explicit-files
   files: 
     - tests/data/nano_dimuon.root
-  # mode: local_dirs
-  # directories:
-  #     - /home/dkondra/depot/users/dkondra/af-benchmark/tests/data/
+executor:
+  backend: sequential
 processor:
   parallelize_over: files
-  # parallelize_over: columns
-  columns: 5
-    # - event
-    # - Muon_pt
-    # - Muon_eta
-  operation: sum
+  collections:
+      - Muon
+  operation: load_into_memory

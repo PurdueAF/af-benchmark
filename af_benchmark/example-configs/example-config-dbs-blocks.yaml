@@ -1,13 +1,14 @@
-executor:
-  backend: sequential
 data-access:
   mode: dbs-blocks
+  # xrootdserver: cms-xcache.rcac.purdue.edu:1094
+  # xrootdserver: cmsxrootd.hep.wisc.edu:1094
   xrootdserver: eos.cms.rcac.purdue.edu:1094
-#  xrootdserver: cms-xcache.rcac.purdue.edu:1094
-#  xrootdserver: cmsxrootd.hep.wisc.edu:1094
   blocks:
       - /SingleMuon/Run2017C-02Apr2020-v1/NANOAOD#44236284-ff8d-4b95-b971-dcec15b5130f        
+executor:
+  backend: futures
 processor:
   parallelize_over: files
-  columns: 5
-  operation: sum
+  collections:
+      - Muon
+  operation: load_into_memory

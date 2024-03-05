@@ -1,12 +1,13 @@
-executor:
-  backend: futures
 data-access:
   mode: dbs-datasets
-#  xrootdserver: eos.cms.rcac.purdue.edu:1094
   xrootdserver: cms-xcache.rcac.purdue.edu:1094
   datasets:
       - /SingleMuon/Run2016B-02Apr2020_ver2-v1/NANOAOD
+      - /SingleMuon/Run2016C-02Apr2020_ver2-v1/NANOAOD
+executor:
+  backend: futures
 processor:
   parallelize_over: files
-  columns: 1
-  operation: nothing
+  collections:
+      - Muon
+  operation: load_into_memory

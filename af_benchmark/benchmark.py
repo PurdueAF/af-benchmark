@@ -111,7 +111,7 @@ class Benchmark:
         )
 
         # Add custom labels
-        for label, value in custom_labels.items():
+        for label, value in self.custom_labels.items():
             if label not in report:
                 report[label] = value
 

@@ -38,8 +38,8 @@ class Benchmark:
         self.report_df = pd.DataFrame()
         self.col_stats = pd.DataFrame()
         
-        # arbitrary label for interpreting outputs
-        self.label = None 
+        # arbitrary labels for interpreting outputs
+        self.custom_labels = {} 
 
         if config_path:
             self.reload_config(config_path)
@@ -93,7 +93,6 @@ class Benchmark:
 
     def update_report(self):        
         report = {
-            "label": self.label,
             "n_files": self.n_files,
             "n_columns_read": len(self.processor.columns),
             "n_events": self.col_stats.nevents.sum(),
@@ -110,6 +109,11 @@ class Benchmark:
                 zip(tp.report_df.func_name, tp.report_df.func_time)
             )
         )
+
+        # Add custom labels
+        for label, value in custom_labels.items():
+            if label not in report:
+                report[label] = value
 
         # Add measurements to common DataFrame
         self.report_df = pd.concat([

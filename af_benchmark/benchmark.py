@@ -39,6 +39,7 @@ class Benchmark:
         self.processor = None
         self.report_df = pd.DataFrame()
         self.col_stats = pd.DataFrame()
+        self.label = None # arbitrary label
         if config_path:
             self.reload_config(config_path)
 
@@ -97,6 +98,7 @@ class Benchmark:
             n_cols_read = len(n_cols_read)
         
         report = {
+            "label": self.label,
             "n_files": self.n_files,
             "n_columns_read": n_cols_read,
             "n_events": self.col_stats.nevents.sum(),

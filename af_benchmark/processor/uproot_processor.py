@@ -13,15 +13,41 @@ class UprootProcessor:
 
     def get_column_list(self, file):
         columns_to_read = self.config.get('processor.columns', [])
+        collections_to_read = self.config.get('processor.collections', [])
+
+        if columns_to_read and collections_to_read:
+            raise ValueError("Specifying columns and collections at the same time is not allowed!")
+
         tree = self.open_nanoaod(file)
-        if isinstance(columns_to_read, list):
-            if any(c not in tree.keys() for c in columns_to_read):
-                raise ValueError(f"Error reading column: {column}")
+
+        if collections_to_read:
+            # All columns from given collections
+            missing_collections = [
+                collection for collection in collections_to_read
+                    if not any(column.startswith(collection) for column in tree.keys())
+            ]
+            if missing_collections:
+                raise ValueError(f"Missing collections: {', '.join(missing_collections)}")
+            self.columns = [
+                column for column in tree.keys()
+                    if any(column.startswith(collection) for collection in collections_to_read)
+            ]
+
+        elif isinstance(columns_to_read, list):
+            # Explicitly specified columns
+            missing_columns = [c for c in columns_to_read if c not in tree.keys()]
+            if missing_columns:
+                raise ValueError(f"Error reading columns: {', '.join(missing_columns)}")
             self.columns = columns_to_read
+
         elif isinstance(columns_to_read, int):
+            # Number of columns to read
+            if columns_to_read < 0:
+                raise ValueError("Number of columns can't be negative.")
             self.columns = list(tree.keys())[:columns_to_read]
-            if len(self.columns)<columns_to_read:
+            if len(self.columns) < columns_to_read:
                 raise ValueError(f"Trying to read {columns_to_read} columns, but only {len(self.columns)} present in file.")
+
         else:
             raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
 
@@ -37,8 +63,10 @@ class UprootProcessor:
             args = [{"files": [file], "columns": self.columns} for file in files]
         elif parallelize_over == "columns":
             args = [{"files": files, "columns": [col]} for col in self.columns]
-        else:
+        elif parallelize_over == "files_and_columns":
             args = [{"files": [file], "columns": [col]} for file in files for col in self.columns]
+        else:
+            raise ValueError(f"Incorrect parameter: parallelize_over={parallelize_over}")
 
         col_stats = executor.execute(self.process_columns_func, args, **kwargs)
 

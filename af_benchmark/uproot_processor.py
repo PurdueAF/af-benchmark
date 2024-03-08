@@ -8,7 +8,7 @@ class UprootProcessor:
         self.config = config
 
     def open_nanoaod(self, file_path, **kwargs):
-        tree = uproot.open(file_path)["Events"]
+        tree = uproot.open(file_path,timeout=300)["Events"]
         return tree
 
     def get_column_list(self, file):

@@ -6,8 +6,10 @@ executor:
   backend: sequential
 processor:
   parallelize_over: files
-  collections:
-      - Muon
+  columns:
+      method: collections
+      values:
+        - Muon
   load_columns_into_memory: True
   worker_operation_time: 1
 

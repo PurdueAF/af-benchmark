@@ -2,18 +2,20 @@ from utils import run_tests
 
 
 def test_processor_columns_explicit(b):
-    b.config["processor"]["columns"] = ["Muon_pt", "Muon_eta"]
+    b.config["processor"]["columns"]["method"] = "column_list"
+    b.config["processor"]["columns"]["values"] = ["Muon_pt", "Muon_eta"]
     b.run()
     print(f"Successfully tested processing explicit list of columns")
 
 def test_processor_columns_number(b):
-    b.config["processor"]["columns"] = 5
+    b.config["processor"]["columns"]["method"] = "n_columns"
+    b.config["processor"]["columns"]["values"] = 5
     b.run()
     print(f"Successfully tested processing given number of columns")
 
 def test_processor_collections(b):
-    b.config["processor"]["columns"] = []
-    b.config["processor"]["collections"] = ["Muon"]
+    b.config["processor"]["columns"]["method"] = "collections"
+    b.config["processor"]["collections"]["values"] = ["Muon"]
     b.run()
     print(f"Successfully tested processing a collection of columns")
 
@@ -45,7 +47,8 @@ def test_processor_parallelize_over_files(b):
 def test_processor_parallelize_over_columns(b):
     b.config["processor"]["parallelize_over"] = "columns"
     b.config["executor"]["backend"] = "futures"
-    b.config["processor"]["columns"] = 2
+    b.config["processor"]["columns"]["method"] = "n_columns"
+    b.config["processor"]["columns"]["values"] = 2
     b.run()
     print(f"Successfully tested parallelization over files")
 
@@ -56,7 +59,8 @@ def test_processor_parallelize_over_files_and_columns(b):
         "tests/data/nano_dimuon.root",
         "tests/data/nano_dimuon.root"
     ]
-    b.config["processor"]["columns"] = 2
+    b.config["processor"]["columns"]["method"] = "n_columns"
+    b.config["processor"]["columns"]["values"] = 2
     b.run()
     print(f"Successfully tested parallelization over files and columns")
 

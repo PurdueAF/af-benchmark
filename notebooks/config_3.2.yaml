@@ -12,7 +12,9 @@ data-access:
 
 processor:
   parallelize_over: columns
-  columns: 10
+  columns:
+    method: n_columns
+    values: 10
   load_columns_into_memory: True
   worker_operation_time: 0
 

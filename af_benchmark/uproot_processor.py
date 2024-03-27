@@ -13,15 +13,14 @@ class UprootProcessor:
         return tree
 
     def get_column_list(self, file):
-        columns_to_read = self.config.get('processor.columns', [])
-        collections_to_read = self.config.get('processor.collections', [])
-
-        if columns_to_read and collections_to_read:
-            raise ValueError("Specifying columns and collections at the same time is not allowed!")
+        column_read_method = self.config.get('processor.columns.method', None)
+        if not column_read_method:
+            raise ValueError("processor.columns.method must be specified!")
 
         tree = self.open_nanoaod(file)
 
-        if collections_to_read:
+        if column_read_method=='collections':
+            collections_to_read = self.config.get('processor.columns.values', [])
             # All columns from given collections
             missing_collections = [
                 collection for collection in collections_to_read
@@ -34,23 +33,26 @@ class UprootProcessor:
                     if any(column.startswith(collection) for collection in collections_to_read)
             ]
 
-        elif isinstance(columns_to_read, list):
+        elif column_read_method=='column_list':
+            columns_to_read = self.config.get('processor.columns.values', [])
             # Explicitly specified columns
             missing_columns = [c for c in columns_to_read if c not in tree.keys()]
             if missing_columns:
                 raise ValueError(f"Error reading columns: {', '.join(missing_columns)}")
             self.columns = columns_to_read
 
-        elif isinstance(columns_to_read, int):
+            # elif isinstance(columns_to_read, int):
+        elif column_read_method=='n_columns':
+            n_columns_to_read = self.config.get('processor.columns.values', 0)
             # Number of columns to read
-            if columns_to_read < 0:
+            if n_columns_to_read < 0:
                 raise ValueError("Number of columns can't be negative.")
-            self.columns = list(tree.keys())[:columns_to_read]
-            if len(self.columns) < columns_to_read:
-                raise ValueError(f"Trying to read {columns_to_read} columns, but only {len(self.columns)} present in file.")
+            self.columns = list(tree.keys())[:n_columns_to_read]
+            if len(self.columns) < n_columns_to_read:
+                raise ValueError(f"Trying to read {n_columns_to_read} columns, but only {len(self.columns)} present in file.")
 
         else:
-            raise ValueError(f"Incorrect type of processor.columns parameter: {type(columns_to_read)}")
+            raise ValueError(f"Invalid value of processor.columns.method parameter: {column_read_method}")
 
 
     @tp.enable

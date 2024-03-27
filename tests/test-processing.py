@@ -15,7 +15,7 @@ def test_processor_columns_number(b):
 
 def test_processor_collections(b):
     b.config["processor"]["columns"]["method"] = "collections"
-    b.config["processor"]["collections"]["values"] = ["Muon"]
+    b.config["processor"]["columns"]["values"] = ["Muon"]
     b.run()
     print(f"Successfully tested processing a collection of columns")
 

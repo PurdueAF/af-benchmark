@@ -8,4 +8,6 @@ processor:
   parallelize_over: files
   collections:
       - Muon
-  operation: load_into_memory
+  load_columns_into_memory: True
+  worker_operation_time: 1
+

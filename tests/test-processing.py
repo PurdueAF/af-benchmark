@@ -17,15 +17,20 @@ def test_processor_collections(b):
     b.run()
     print(f"Successfully tested processing a collection of columns")
 
-def test_processor_operation_nothing(b):
-    b.config["processor"]["operation"] = "nothing"
+def test_processor_dont_load(b):
+    b.config["processor"]["load_into_memory"] = False
     b.run()
     print(f"Successfully tested doing nothing to specified columns")
 
-def test_processor_operation_load(b):
-    b.config["processor"]["operation"] = "load_into_memory"
+def test_processor_load(b):
+    b.config["processor"]["load_into_memory"] = True
     b.run()
     print(f"Successfully tested loading specified columns into memory")
+
+def test_processor_worker_operation(b):
+    b.config["processor"]["worker_operation_time"] = 10
+    b.run()
+    print(f"Successfully tested worker operation (10s)")
 
 def test_processor_parallelize_over_files(b):
     b.config["processor"]["parallelize_over"] = "files"
@@ -63,8 +68,9 @@ if __name__=='__main__':
             test_processor_columns_explicit,
             test_processor_columns_number,
             test_processor_collections,
-            test_processor_operation_nothing,
-            test_processor_operation_load,
+            test_processor_dont_load,
+            test_processor_load,
+            test_processor_worker_operation,
             test_processor_parallelize_over_files,
             test_processor_parallelize_over_columns,
             test_processor_parallelize_over_files_and_columns,

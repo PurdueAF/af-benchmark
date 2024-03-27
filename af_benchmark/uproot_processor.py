@@ -2,6 +2,8 @@ from time_profiler import time_profiler as tp
 import pandas as pd
 import numpy as np
 import uproot
+import time
+from operations import operations
 
 class UprootProcessor:
     def __init__(self, config):
@@ -53,8 +55,9 @@ class UprootProcessor:
 
 
     @tp.enable
-    def process_columns(self, files, executor, **kwargs):
-        parallelize_over = kwargs.get("parallelize_over", 'files')
+    def run_processor(self, files, executor, **kwargs):
+        parallelize_over = self.config.get('processor.parallelize_over', 'files'),
+
         arg_dict = {
             "files": files,
             "columns": self.columns
@@ -68,12 +71,12 @@ class UprootProcessor:
         else:
             raise ValueError(f"Incorrect parameter: parallelize_over={parallelize_over}")
 
-        col_stats = executor.execute(self.process_columns_func, args, **kwargs)
+        col_stats = executor.execute(self.worker_func, args, **kwargs)
 
         return pd.concat(col_stats).reset_index(drop=True)  
 
 
-    def process_columns_func(self, args, **kwargs):
+    def worker_func(self, args, **kwargs):
         column_stats = []
         col_stats_df = pd.DataFrame()
         files = args["files"]
@@ -82,6 +85,7 @@ class UprootProcessor:
             for column in columns:
                 col_stats = self.process_column(file, column, **kwargs)
                 col_stats_df = pd.concat([col_stats_df, col_stats])
+        self.run_worker_operation()
         return col_stats_df
 
 
@@ -95,16 +99,12 @@ class UprootProcessor:
             "uncompressed_bytes": column_data.uncompressed_bytes,
             "nevents": tree.num_entries
         }])
-        self.run_operation(column_data)
+        if self.config.get('processor.load_columns_into_memory', False):
+            self.load_columns_into_memory(column_data)
         return col_stats
 
 
-    def run_operation(self, column_data, **kwargs):
-        operation = self.config.get('processor.operation', 'nothing')
-
-        if (not operation) or (operation=='nothing'):
-            return
-
+    def load_columns_into_memory(self, column_data):
         data_in_memory = np.array([])
         if isinstance(column_data, list):
             for item in column_data:
@@ -112,12 +112,17 @@ class UprootProcessor:
         else:
             data_in_memory = column_data.array()
 
-        if operation == 'load_into_memory':
+
+    def run_worker_operation(self):
+        timeout = self.config.get('processor.worker_operation_time', 0)
+        if timeout==0:
             return
-        elif operation == 'mean':        
-            np.mean(data_in_memory)
-        elif operation == 'sum':        
-            np.sum(data_in_memory)
 
-
-        
+        # compute pi until timeout
+        start_time = time.time()
+        pi = k = 0
+        while True:
+            pi += (4.0 * (-1)**k) / (2*k + 1)
+            k += 1
+            if time.time() - start_time > timeout:
+                return

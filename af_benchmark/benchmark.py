@@ -84,12 +84,7 @@ class Benchmark:
         files = get_file_list(self)
         self.processor.get_column_list(files[0])
 
-        self.col_stats = self.processor.process_columns(
-            files,
-            self.executor,
-            parallelize_over=self.config.get('processor.parallelize_over', 'files'),
-            load_into_memory=True
-        )
+        self.col_stats = self.processor.run_processor(files, self.executor)
 
     def update_report(self):        
         report = {

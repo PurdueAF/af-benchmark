@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import uproot
 import time
-from operations import operations
 
 class UprootProcessor:
     def __init__(self, config):

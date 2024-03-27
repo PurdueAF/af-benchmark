@@ -55,7 +55,7 @@ class UprootProcessor:
 
     @tp.enable
     def run_processor(self, files, executor, **kwargs):
-        parallelize_over = self.config.get('processor.parallelize_over', 'files'),
+        parallelize_over = self.config.get('processor.parallelize_over', 'files')
 
         arg_dict = {
             "files": files,

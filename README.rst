@@ -32,13 +32,14 @@ This benchmark is designed for generic but comprehensive performance tests of th
   * Parallelized via ``Dask`` using local cluster
   * Parallelized via ``Dask`` using Gateway cluster
 
+* Multiple data access options:
+
+  * Explicit list of files or directories in local or mounted filesystem
+  * List of files, blocks, or datasets at CMS DBS accessed via network, e.g. XRootD or XCache
+
 * Loading and reading columns from NanoAOD ROOT files is done using ``uproot``.
 
-* Generic operations applied to data in columns:
-
-  * Nothing (just open the ROOT file with a given method)
-  * Load column data into memory
-  * Perform a simple operation on a column, e.g. ``mean()``
+* Abstract "operation" with a given timeout executed by workers to emulate data processing during analysis. 
 
 * Time profiling
 * Measuring size of columns in bytes

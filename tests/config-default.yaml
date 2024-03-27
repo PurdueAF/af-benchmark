@@ -7,7 +7,6 @@ executor:
 processor:
   parallelize_over: files
   columns: 5
-  operation: sum
   load_columns_into_memory: True
   worker_operation_time: 0
 

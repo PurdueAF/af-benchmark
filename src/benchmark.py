@@ -2,6 +2,7 @@ import argparse
 import yaml
 import scalpl
 import glob
+import tqdm
 import pandas as pd
 
 from time_profiler import time_profiler as tp
@@ -37,9 +38,6 @@ class Benchmark:
         self.processor = None
         self.report_df = pd.DataFrame()
         self.col_stats = pd.DataFrame()
-        
-        # arbitrary labels for interpreting outputs
-        self.custom_labels = {} 
 
         if config_path:
             self.reload_config(config_path)
@@ -91,7 +89,8 @@ class Benchmark:
             "n_files": self.n_files,
             "n_columns_read": len(self.processor.columns),
             "n_events": self.col_stats.nevents.sum(),
-            "operation": self.config.get('processor.operation', 'nothing'),
+            "loaded_columns": self.config.get('processor.load_columns_into_memory', False),
+            "worker_operation_time": self.config.get('processor.worker_operation_time', 0),
             "executor": self.backend,
             "n_workers": self.executor.get_n_workers(),
             "compressed_bytes": self.col_stats.compressed_bytes.sum(),
@@ -106,7 +105,7 @@ class Benchmark:
         )
 
         # Add custom labels
-        for label, value in self.custom_labels.items():
+        for label, value in self.config.get('custom_labels', {}).items():
             if label not in report:
                 report[label] = value
 
@@ -125,10 +124,10 @@ def run_benchmark(config_path):
         configs = glob.glob(config_path+"/*.yaml") + glob.glob(config_path+"/*.yml")
 
     b = Benchmark()
-    for config_file in configs:
-        print(f"> Loading config from {config_file}")
+    for config_file in tqdm.tqdm(configs):
+        # print(f"> Loading config from {config_file}")
         b.reload_config(config_file)
-        b.reset()
+        b.reset(keep_cluster=True, reset_workers=True)
         b.run()
         b.update_report()
 

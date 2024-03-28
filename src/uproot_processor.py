@@ -49,7 +49,7 @@ class UprootProcessor:
                 raise ValueError("Number of columns can't be negative.")
             self.columns = list(tree.keys())[:n_columns_to_read]
             if len(self.columns) < n_columns_to_read:
-                raise ValueError(f"Trying to read {n_columns_to_read} columns, but only {len(self.columns)} present in file.")
+                print(f"Trying to read {n_columns_to_read} columns, but only {len(self.columns)} present in file -> will read all of them.")
 
         else:
             raise ValueError(f"Invalid value of processor.columns.method parameter: {column_read_method}")

@@ -64,6 +64,9 @@ class DaskGatewayExecutor(BaseExecutor):
         n_workers = kwargs.get("n_workers", 1)
         self.wait_for_workers(n_workers)
 
+        workers = self.cluster.scheduler_info["workers"]
+        self.worker_cores = workers[list(workers.keys())[0]]["nthreads"]
+
 
     def _find_gateway_client(self):
         """Searches for an existing Dask Gateway cluster and connects to it automatically.

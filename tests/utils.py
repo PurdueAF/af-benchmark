@@ -1,5 +1,5 @@
 import os, sys
-sys.path.append(os.getcwd()+"/af_benchmark")
+sys.path.append(os.getcwd()+"/src")
 import copy
 from benchmark import Benchmark
 

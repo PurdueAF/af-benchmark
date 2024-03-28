@@ -5,13 +5,13 @@ import glob
 import tqdm
 import pandas as pd
 
-from time_profiler import time_profiler as tp
-from data_loader import get_file_list
-from uproot_processor import UprootProcessor
+from src.time_profiler import time_profiler as tp
+from src.data_loader import get_file_list
+from src.uproot_processor import UprootProcessor
 
-from executors.sequential import SequentialExecutor
-from executors.futures import FuturesExecutor
-from executors.dask import DaskLocalExecutor, DaskGatewayExecutor
+from src.executors.sequential import SequentialExecutor
+from src.executors.futures import FuturesExecutor
+from src.executors.dask import DaskLocalExecutor, DaskGatewayExecutor
 executors = {
     'sequential': SequentialExecutor,
     'futures': FuturesExecutor,

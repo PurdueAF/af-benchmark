@@ -1,4 +1,4 @@
-from time_profiler import time_profiler as tp
+from src.time_profiler import time_profiler as tp
 import pandas as pd
 import numpy as np
 import uproot

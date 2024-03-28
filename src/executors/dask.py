@@ -1,4 +1,4 @@
-from executors.base import BaseExecutor
+from src.executors.base import BaseExecutor
 import dask
 from dask.distributed import LocalCluster, Client
 from dask_gateway import Gateway

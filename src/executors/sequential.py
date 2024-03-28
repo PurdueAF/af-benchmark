@@ -1,4 +1,4 @@
-from executors.base import BaseExecutor
+from src.executors.base import BaseExecutor
 
 
 class SequentialExecutor(BaseExecutor):

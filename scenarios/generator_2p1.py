@@ -1,7 +1,7 @@
 import copy
 import yaml
 
-from scenarios.presets import column_presets
+from scenarios.common import column_presets
 from scenarios.utils import recreate_dir
 
 

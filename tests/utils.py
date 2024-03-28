@@ -1,7 +1,7 @@
 import os, sys
 sys.path.append(os.getcwd())
 import copy
-from benchmark import Benchmark
+from src.benchmark import Benchmark
 
 def run_tests(config, functions):
     b = Benchmark(config)

@@ -83,15 +83,15 @@ class UprootProcessor:
         files = args["files"]
         columns = args["columns"]
         for file in files:
+            tree = self.open_nanoaod(file)
             for column in columns:
-                col_stats = self.process_column(file, column, **kwargs)
+                col_stats = self.process_column(tree, column, **kwargs)
                 col_stats_df = pd.concat([col_stats_df, col_stats])
         self.run_worker_operation()
         return col_stats_df
 
 
-    def process_column(self, file, column, **kwargs):
-        tree = self.open_nanoaod(file)
+    def process_column(self, tree, column, **kwargs):
         column_data = tree[column]
         col_stats = pd.DataFrame([{
             "file": tree.file.file_path,

@@ -8,6 +8,7 @@ import pandas as pd
 from src.time_profiler import time_profiler as tp
 from src.data_loader import get_file_list
 from src.uproot_processor import UprootProcessor
+from src.utils import recreate_dir
 
 from src.executors.sequential import SequentialExecutor
 from src.executors.futures import FuturesExecutor
@@ -77,11 +78,9 @@ class Benchmark:
         self.processor = UprootProcessor(self.config)
 
     @tp.profile
-    @tp.enable
     def run(self):
         files = get_file_list(self)
         self.processor.get_column_list(files[0])
-
         self.col_stats = self.processor.run_processor(files, self.executor)
 
     def update_report(self):        
@@ -115,21 +114,30 @@ class Benchmark:
             pd.DataFrame([report])
         ]).reset_index(drop=True)
 
+    def dump_profiler_outputs(self, out_dir):
+        for i, stats in enumerate(tp.full_outputs):
+            label = self.config.get("unique_label", "")
+            filename = f"{out_dir}/profile_{label}_{i}.prof"
+            stats.dump_stats(filename)
 
-def run_benchmark(config_path):
+
+def run_benchmark(config_path, output_path="./"):
     # Read config from YAML or a directory with multiple YAMLs
     if config_path.endswith(".yaml") or config_path.endswith(".yml"):
         configs = [config_path]
     else:
         configs = glob.glob(config_path+"/*.yaml") + glob.glob(config_path+"/*.yml")
 
-    b = Benchmark()
+    recreate_dir(output_path)
+
+    b = Benchmark()    
     for config_file in tqdm.tqdm(configs):
         # print(f"> Loading config from {config_file}")
         b.reload_config(config_file)
         b.reset(keep_cluster=True, reset_workers=True)
         b.run()
         b.update_report()
+        b.dump_profiler_outputs(output_path)
 
     return b.report_df
 

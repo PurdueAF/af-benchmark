@@ -59,7 +59,10 @@ class DaskGatewayExecutor(BaseExecutor):
     """
 
     def __init__(self, **kwargs):
-        self.gateway = Gateway()
+        self.gateway = Gateway(
+            "http://dask-gateway-k8s.geddes.rcac.purdue.edu/",
+            proxy_address="traefik-dask-gateway-k8s.cms.geddes.rcac.purdue.edu:8786",
+        )
         self._find_gateway_client()
         n_workers = kwargs.get("n_workers", 1)
         self.wait_for_workers(n_workers)

@@ -58,7 +58,8 @@ class TimeProfiler:
             for k,v in stats.stats.items():
                 # Actual function name is long => will use alias for nicer looking output
                 extra_funcs = {
-                    "decompress": "<method 'decompress' of '_lzma.LZMADecompressor' objects>"
+                    "decompress": "<method 'decompress' of '_lzma.LZMADecompressor' objects>",
+                    "wait": "<method 'acquire' of '_thread.lock' objects>"
                 }
                 for alias, extra_func in extra_funcs.items():
                     if k[2] == extra_func:
